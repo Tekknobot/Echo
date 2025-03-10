@@ -86,12 +86,12 @@ MonoBehaviour:
   - gunName: SMG
     automatic: 1
     shootCooldown: 0.075
-    shootRange: 50
+    shootRange: 100
     bulletRicochetPrefab: {fileID: 5740520505562322749, guid: 277bcc0274ecc44a6b29e06af4e032df, type: 3}
     impactForce: 2
     shootSFX: {fileID: 8300000, guid: f97d9dd0449c143b5b68bb5b033e8cdb, type: 3}
     bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
-    bulletSpread: 5
+    bulletSpread: 2.5
   currentGunIndex: 0
   crosshairTexture: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
   crosshairSize: {x: 16, y: 16}

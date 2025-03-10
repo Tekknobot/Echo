@@ -259,7 +259,7 @@ public class FirstPersonController : MonoBehaviour
             EnemyHitFlash enemyFlash = hit.transform.GetComponent<EnemyHitFlash>();
             if (enemyFlash != null)
             {
-                enemyFlash.Flash();
+                enemyFlash.FlashAndTakeDamage();
             }
         }
         else
