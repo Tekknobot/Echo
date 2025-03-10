@@ -189,18 +189,25 @@ public class FirstPersonController : MonoBehaviour
             {
                 GameObject impactInstance = Instantiate(gun.bulletRicochetPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 
-                // Match the fragment color to the wall's color
+                // Get the fragment's renderer.
                 Renderer fragRenderer = impactInstance.GetComponent<Renderer>();
                 if (fragRenderer != null)
                 {
-                    Renderer wallRenderer = hit.transform.GetComponent<Renderer>();
-                    if (wallRenderer != null)
-                    {
-                        fragRenderer.material.color = wallRenderer.material.color;
-                    }
+                    // Enable emission on the material.
+                    fragRenderer.material.EnableKeyword("_EMISSION");
+                    
+                    // Capture the original emission color.
+                    Color originalEmission = fragRenderer.material.GetColor("_EmissionColor");
+                    
+                    // Instead of using the wall's color, use the fragment's base color.
+                    Color baseColor = fragRenderer.material.GetColor("_Color");
+                    fragRenderer.material.SetColor("_EmissionColor", baseColor * 2.0f);
+                    
+                    // Gradually reset the emission back to its original color over 3 seconds.
+                    StartCoroutine(ResetFragmentEmission(fragRenderer, originalEmission, 3f));
                 }
                 
-                // Add an impact force if the prefab has a Rigidbody attached
+                // Add an impact force if the prefab has a Rigidbody attached.
                 Rigidbody rb = impactInstance.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
@@ -292,4 +299,22 @@ public class FirstPersonController : MonoBehaviour
             GUI.Label(new Rect((Screen.width / 2) - 5, (Screen.height / 2) - 5, 10, 10), "•");
         }
     }
+
+    IEnumerator ResetFragmentEmission(Renderer rend, Color originalEmission, float duration)
+    {
+        if (rend == null)
+            yield break;
+
+        Color startEmission = rend.material.GetColor("_EmissionColor");
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            Color newEmission = Color.Lerp(startEmission, originalEmission, elapsed / duration);
+            rend.material.SetColor("_EmissionColor", newEmission);
+            yield return null;
+        }
+        rend.material.SetColor("_EmissionColor", originalEmission);
+    }
+
 }
