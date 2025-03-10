@@ -183,7 +183,7 @@ public class FirstPersonController : MonoBehaviour
             if (gun.bulletRicochetPrefab != null)
             {
                 GameObject impactInstance = Instantiate(gun.bulletRicochetPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                // (Optional) You can adjust the rotation further if needed:
+                // (Optional) Adjust the rotation further if needed:
                 // impactInstance.transform.rotation *= Quaternion.Euler(0, 90, 90);
 
                 // Add an impact force if the prefab has a Rigidbody attached
@@ -194,18 +194,33 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
 
-            // Instantiate the bullet impact decal at the hit point
+            // Only instantiate the impact decal if one doesn't already exist near the hit point
             if (gun.bulletImpactDecalPrefab != null)
             {
-                // Apply a small offset along the hit normal to prevent z-fighting
-                float decalOffset = 0.01f;
-                GameObject decalInstance = Instantiate(
-                    gun.bulletImpactDecalPrefab, 
-                    hit.point + hit.normal * decalOffset, 
-                    Quaternion.LookRotation(-hit.normal)
-                );
-                // Optionally, parent the decal to the hit object so it moves along with it
-                decalInstance.transform.SetParent(hit.transform);
+                float decalCheckRadius = 0.05f; // Adjust this value based on your decal size
+                Collider[] nearbyDecals = Physics.OverlapSphere(hit.point, decalCheckRadius);
+                bool decalAlreadyExists = false;
+                foreach (Collider col in nearbyDecals)
+                {
+                    if (col.CompareTag("BulletImpactDecal"))
+                    {
+                        decalAlreadyExists = true;
+                        break;
+                    }
+                }
+
+                if (!decalAlreadyExists)
+                {
+                    // Apply a small offset along the hit normal to prevent z-fighting
+                    float decalOffset = 0.01f;
+                    GameObject decalInstance = Instantiate(
+                        gun.bulletImpactDecalPrefab,
+                        hit.point + hit.normal * decalOffset,
+                        Quaternion.LookRotation(-hit.normal)
+                    );
+                    // Optionally, parent the decal to the hit object so it moves with it
+                    decalInstance.transform.SetParent(hit.transform);
+                }
             }
 
             // Trigger shooting sound effect if one is assigned
@@ -221,6 +236,7 @@ public class FirstPersonController : MonoBehaviour
         }
         // (Optional: add additional visual or audio feedback here)
     }
+
 
     // Allow switching between different guns using number keys (Alpha1, Alpha2, etc.)
     void HandleGunSwitching()
