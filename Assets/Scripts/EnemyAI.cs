@@ -112,11 +112,21 @@ public class EnemyAI : MonoBehaviour
                     screenFlash.Flash();
                 }
                 
-                // Push the player (assuming the player has a Rigidbody or knockback script).
+                // Knock back the player.
+                // First, try using a Rigidbody.
                 Rigidbody playerRb = player.GetComponent<Rigidbody>();
                 if (playerRb != null)
                 {
                     playerRb.AddForce(direction * knockbackForce, ForceMode.Impulse);
+                }
+                else
+                {
+                    // Otherwise, try using a PlayerKnockback script.
+                    PlayerKnockback knockback = player.GetComponent<PlayerKnockback>();
+                    if (knockback != null)
+                    {
+                        knockback.ApplyKnockback(direction * knockbackForce);
+                    }
                 }
             }
         }

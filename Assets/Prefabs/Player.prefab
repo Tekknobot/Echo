@@ -79,6 +79,7 @@ MonoBehaviour:
   jumpForce: 5
   gravity: 9.81
   terminalVelocity: 20
+  runMultiplier: 1.5
   lookSpeed: 2
   lookXLimit: 90
   smoothing: 2
@@ -92,10 +93,36 @@ MonoBehaviour:
     shootSFX: {fileID: 8300000, guid: f97d9dd0449c143b5b68bb5b033e8cdb, type: 3}
     bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
     bulletSpread: 2.5
+    pelletCount: 1
+    zoomFOV: 30
+  - gunName: Shotgun
+    automatic: 0
+    shootCooldown: 1
+    shootRange: 50
+    bulletRicochetPrefab: {fileID: 5740520505562322749, guid: 277bcc0274ecc44a6b29e06af4e032df, type: 3}
+    impactForce: 2
+    shootSFX: {fileID: 8300000, guid: 58aa3dc6f4a854ed69bb5c5c8ea0abb8, type: 3}
+    bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
+    bulletSpread: 5
+    pelletCount: 16
+    zoomFOV: 30
+  - gunName: Pistol
+    automatic: 0
+    shootCooldown: 0.075
+    shootRange: 100
+    bulletRicochetPrefab: {fileID: 5740520505562322749, guid: 277bcc0274ecc44a6b29e06af4e032df, type: 3}
+    impactForce: 2
+    shootSFX: {fileID: 8300000, guid: 38aef5e38ed724283b03379e925f78ba, type: 3}
+    bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
+    bulletSpread: 0
+    pelletCount: 1
+    zoomFOV: 30
   currentGunIndex: 0
   crosshairTexture: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
   crosshairSize: {x: 16, y: 16}
   cameraTransform: {fileID: 354474813519560832}
+  gunSwitchSFX: {fileID: 8300000, guid: 7718fc8e6a1274399b4d5a6129734f7b, type: 3}
+  zoomLerpSpeed: 10
 --- !u!114 &6743723431881102354
 MonoBehaviour:
   m_ObjectHideFlags: 0
