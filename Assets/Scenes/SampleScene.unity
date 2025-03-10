@@ -460,10 +460,10 @@ MonoBehaviour:
   cellSize: 10
   wallHeight: 10
   wallColors:
-  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  - {r: 1, g: 0, b: 0, a: 1}
-  - {r: 0, g: 0, b: 1, a: 1}
-  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 0.5283019, g: 0.4862061, b: 0, a: 1}
+  - {r: 0.509434, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0, b: 0.5, a: 1}
+  - {r: 0, g: 0.5, b: 0, a: 1}
   floorColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
   playerPrefab: {fileID: 5095881206533770564, guid: b184bab7af9ee423498d6567e1468d62, type: 3}
   exitPrefab: {fileID: 6233408536601621062, guid: 53fccac9c8f474dccb859229e67e80d3, type: 3}
