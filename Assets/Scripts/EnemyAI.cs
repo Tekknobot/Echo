@@ -5,27 +5,39 @@ public class EnemyAI : MonoBehaviour
 {
     [Header("Attack Settings")]
     public Transform player;          // Reference to the player's transform.
-    public float attackInterval = 2f; // Time (in seconds) between each raycast shot.
+    public float attackInterval = 2f; // Time (in seconds) between each attack.
     public float attackRange = 50f;   // Maximum distance for the raycast.
-    public LayerMask obstacleMask;    // Layers that can block the ray (e.g., walls, obstacles).
-    public float knockbackForce = 5f; // Force to push the player on hit
+    public LayerMask obstacleMask;    // Layers that block the ray.
+    public float knockbackForce = 5f; // Force to push the player on hit.
+
+    [Header("Attack Color Settings")]
+    public Color attackColor = Color.red;      // The color the enemy transitions to when attacking.
+    public float preAttackDuration = 0.5f;       // Time to transition to the attack color.
+    public float postAttackDuration = 0.2f;      // Time to quickly revert to the original color.
 
     private float timer;
-    private ScreenFlash screenFlash;  // Reference to the ScreenFlash component.
+    private ScreenFlash screenFlash;           // Reference to the ScreenFlash component.
+    private Renderer enemyRenderer;
+    private Color originalColor;
+    private bool isAttacking = false;
 
     void Start()
     {
         timer = attackInterval;
-        // Start waiting for the player to be in the scene.
-        StartCoroutine(WaitForPlayer());
+        enemyRenderer = GetComponent<Renderer>();
+        if (enemyRenderer != null)
+        {
+            originalColor = enemyRenderer.material.color;
+        }
         
-        // Find the ScreenFlash component in the scene.
+        // Wait for the player to exist.
+        StartCoroutine(WaitForPlayer());
+        // Find the ScreenFlash component.
         screenFlash = FindFirstObjectByType<ScreenFlash>();
     }
 
     IEnumerator WaitForPlayer()
     {
-        // Wait until a GameObject with the tag "Player" exists.
         while (player == null)
         {
             GameObject pObj = GameObject.FindGameObjectWithTag("Player");
@@ -40,49 +52,73 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        // Only proceed if a player exists.
         if (player == null)
             return;
 
         timer -= Time.deltaTime;
-        if (timer <= 0f)
+        if (timer <= 0f && !isAttacking)
         {
-            FireAtPlayer();
+            StartCoroutine(AttackPlayerWithColor());
             timer = attackInterval;
         }
     }
 
+    IEnumerator AttackPlayerWithColor()
+    {
+        isAttacking = true;
+        // Gradually change the enemy's color to the attack color.
+        float t = 0f;
+        while (t < preAttackDuration)
+        {
+            t += Time.deltaTime;
+            if (enemyRenderer != null)
+                enemyRenderer.material.color = Color.Lerp(originalColor, attackColor, t / preAttackDuration);
+            yield return null;
+        }
+        
+        // Attack: Fire a raycast at the player.
+        FireAtPlayer();
+        
+        // Quickly revert color to the original.
+        t = 0f;
+        while (t < postAttackDuration)
+        {
+            t += Time.deltaTime;
+            if (enemyRenderer != null)
+                enemyRenderer.material.color = Color.Lerp(attackColor, originalColor, t / postAttackDuration);
+            yield return null;
+        }
+        if (enemyRenderer != null)
+            enemyRenderer.material.color = originalColor;
+        
+        isAttacking = false;
+    }
+
     void FireAtPlayer()
     {
-        if (player == null)
-            return;
-
         // Calculate direction from enemy to player.
         Vector3 direction = (player.position - transform.position).normalized;
         Ray ray = new Ray(transform.position, direction);
         RaycastHit hit;
-
+        
         if (Physics.Raycast(ray, out hit, attackRange, obstacleMask))
         {
-            // If the ray hit the player, trigger the flash effect and apply knockback.
             if (hit.transform == player)
             {
                 Debug.Log("Enemy ray hit the player!");
+                // Flash the screen.
                 if (screenFlash != null)
                 {
                     screenFlash.Flash();
                 }
-
-                // Get the PlayerKnockback component on the player
-                PlayerKnockback knockback = player.GetComponent<PlayerKnockback>();
-                if (knockback != null)
+                
+                // Push the player (assuming the player has a Rigidbody or knockback script).
+                Rigidbody playerRb = player.GetComponent<Rigidbody>();
+                if (playerRb != null)
                 {
-                    // Calculate the knockback force (you can tweak the magnitude as needed)
-                    Vector3 knockbackForce = direction * 50f; // Adjust the multiplier as needed
-                    knockback.ApplyKnockback(knockbackForce);
+                    playerRb.AddForce(direction * knockbackForce, ForceMode.Impulse);
                 }
             }
         }
     }
-
 }
