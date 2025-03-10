@@ -11,7 +11,7 @@ public class MazeGenerator : MonoBehaviour {
 
     [Header("Wall Settings")]
     public float wallHeight = 4f;       // Height of the walls
-    // Array of 4 wall colors: (0) Yellow, (1) Red, (2) Blue, (3) Green.
+    // Array of possible wall colors: Yellow, Red, Blue, and Green.
     public Color[] wallColors = new Color[] { Color.yellow, Color.red, Color.blue, Color.green };
 
     [Header("Colors")]
@@ -42,7 +42,7 @@ public class MazeGenerator : MonoBehaviour {
         SpawnEnemies();       // Spawn enemies throughout the maze
     }
 
-    // Initialize a grid of cells
+    // Initialize a grid of cells.
     void InitializeCells() {
         cells = new Cell[width, height];
         for (int x = 0; x < width; x++) {
@@ -52,7 +52,7 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
-    // Maze generation using recursive backtracking
+    // Maze generation using recursive backtracking.
     void GenerateMaze() {
         Stack<Cell> stack = new Stack<Cell>();
         Cell current = cells[0, 0];
@@ -112,16 +112,16 @@ public class MazeGenerator : MonoBehaviour {
         cells[width - 1, height - 1].walls[2] = false;
     }
 
-    // Build the maze using Cube primitives and the wallHeight variable
+    // Build the maze using Cube primitives and assign colors based on cell area.
     void BuildMaze() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Vector3 cellCenter = new Vector3(x * cellSize, 0, y * cellSize);
                 Cell cell = cells[x, y];
-                // Determine the group color based on the cell's quadrant.
+                // Get the color based on the quadrant.
                 Color groupColor = GetGroupColor(cell);
 
-                // Adjust Y position by half the wall height so the bottom rests on the floor
+                // Adjust Y position by half the wall height so the bottom rests on the floor.
                 if (cell.walls[0])
                     CreateWall(cellCenter + new Vector3(0, wallHeight / 2, -cellSize / 2), new Vector3(cellSize, wallHeight, 0.5f), groupColor);  // Bottom
                 if (cell.walls[1])
@@ -134,21 +134,22 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
-    // Return a color based on which quadrant the cell belongs to.
-    // Assumes maze cells are indexed from (0,0) to (width-1, height-1)
+    // Returns a color based on the cell's quadrant.
     Color GetGroupColor(Cell cell) {
-        // Determine half sizes (as floats)
         float halfWidth = width / 2f;
         float halfHeight = height / 2f;
-
+        // Bottom Left
         if (cell.x < halfWidth && cell.y < halfHeight)
-            return wallColors[0]; // Bottom Left - Yellow
+            return wallColors[0];
+        // Bottom Right
         else if (cell.x >= halfWidth && cell.y < halfHeight)
-            return wallColors[1]; // Bottom Right - Red
+            return wallColors[1];
+        // Top Left
         else if (cell.x < halfWidth && cell.y >= halfHeight)
-            return wallColors[2]; // Top Left - Blue
+            return wallColors[2];
+        // Top Right
         else
-            return wallColors[3]; // Top Right - Green
+            return wallColors[3];
     }
 
     // Create a wall at the given position, scale, and with the given color.
@@ -164,7 +165,6 @@ public class MazeGenerator : MonoBehaviour {
             wallRenderer.material.color = color;
         }
         
-        // Ensure the wall has a BoxCollider (should be there by default)
         BoxCollider collider = wall.GetComponent<BoxCollider>();
         if(collider == null) {
             collider = wall.AddComponent<BoxCollider>();
@@ -181,11 +181,11 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
-    // Create a floor to cover the maze so the player doesn't fall continuously
+    // Create a floor to cover the maze so the player doesn't fall continuously.
     void CreateFloor() {
         GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        floor.tag = "floor"; // Tag the floor as "floor"
-        floor.layer = LayerMask.NameToLayer("Floor"); // Set the floor's layer to "floor"
+        floor.tag = "floor";
+        floor.layer = LayerMask.NameToLayer("Floor");
         
         float centerX = (width * cellSize) / 2 - cellSize / 2;
         float centerZ = (height * cellSize) / 2 - cellSize / 2;
@@ -195,7 +195,6 @@ public class MazeGenerator : MonoBehaviour {
         float scaleZ = (height * cellSize) / 10f;
         floor.transform.localScale = new Vector3(scaleX, 1, scaleZ);
 
-        // Set the floor's color
         Renderer floorRenderer = floor.GetComponent<Renderer>();
         if (floorRenderer != null) {
             floorRenderer.material.color = floorColor;
@@ -212,22 +211,37 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
-    // Spawn enemies randomly throughout the maze (excluding the start and exit cells)
+    // Spawn enemies randomly throughout the maze (excluding cells near the start and exit)
     void SpawnEnemies() {
         if (enemyPrefab == null) {
             Debug.LogWarning("Enemy Prefab not assigned!");
             return;
         }
-        for (int i = 0; i < enemyCount; i++) {
-            int randomX = Random.Range(0, width);
-            int randomY = Random.Range(0, height);
-            // Avoid spawning in the starting cell (0,0) and the exit cell (width-1,height-1)
-            if ((randomX == 0 && randomY == 0) || (randomX == width - 1 && randomY == height - 1)) {
-                i--;
-                continue;
+
+        List<Vector2Int> validCells = new List<Vector2Int>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                // Exclude cells near the start (0,0) and near the exit (width-1, height-1)
+                bool nearStart = (x <= 1 && y <= 1);
+                bool nearExit = (x >= width - 2 && y >= height - 2);
+                if (nearStart || nearExit)
+                    continue;
+                validCells.Add(new Vector2Int(x, y));
             }
-            // Calculate enemy spawn position (adjust y if necessary)
-            Vector3 enemyPos = new Vector3(randomX * cellSize, 1, randomY * cellSize);
+        }
+
+        // Shuffle the list
+        for (int i = 0; i < validCells.Count; i++) {
+            Vector2Int temp = validCells[i];
+            int randomIndex = Random.Range(i, validCells.Count);
+            validCells[i] = validCells[randomIndex];
+            validCells[randomIndex] = temp;
+        }
+
+        int spawnCount = Mathf.Min(enemyCount, validCells.Count);
+        for (int i = 0; i < spawnCount; i++) {
+            Vector2Int cellCoords = validCells[i];
+            Vector3 enemyPos = new Vector3(cellCoords.x * cellSize, 1, cellCoords.y * cellSize);
             Instantiate(enemyPrefab, enemyPos, Quaternion.identity);
         }
     }
