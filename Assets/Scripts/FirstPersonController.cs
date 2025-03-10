@@ -11,8 +11,10 @@ public class Gun
     public GameObject bulletRicochetPrefab;  // Prefab used for the bullet ricochet effect
     public float impactForce = 10f;  // Impact force to apply to the prefab after instantiation
     public AudioClip shootSFX;       // Audio clip to play on each shot
-    // New: Decal prefab that will be placed at the hit point
+    // Decal prefab that will be placed at the hit point
     public GameObject bulletImpactDecalPrefab;
+    // Bullet spread angle (in degrees) to randomize the shot direction
+    public float bulletSpread = 0f;
 }
 
 public class FirstPersonController : MonoBehaviour
@@ -166,11 +168,21 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    // Fire a shot using the parameters of the given gun
+    // Fire a shot using the parameters of the given gun, with bullet spread applied
     void Shoot(Gun gun)
     {
-        // Create a ray from the camera's position going forward
-        Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
+        // Calculate shot direction including bullet spread
+        Vector3 shotDirection = cameraTransform.forward;
+        if (gun.bulletSpread > 0f)
+        {
+            // Randomize spread within a cone defined by bulletSpread (in degrees)
+            float spreadX = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
+            float spreadY = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
+            shotDirection = Quaternion.Euler(spreadY, spreadX, 0) * cameraTransform.forward;
+        }
+
+        // Create a ray using the modified shot direction
+        Ray ray = new Ray(cameraTransform.position, shotDirection);
         RaycastHit hit;
         Vector3 endPoint;
 
@@ -183,7 +195,7 @@ public class FirstPersonController : MonoBehaviour
             if (gun.bulletRicochetPrefab != null)
             {
                 GameObject impactInstance = Instantiate(gun.bulletRicochetPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                // (Optional) Adjust the rotation further if needed:
+                // Optionally, adjust rotation further if needed:
                 // impactInstance.transform.rotation *= Quaternion.Euler(0, 90, 90);
 
                 // Add an impact force if the prefab has a Rigidbody attached
@@ -197,7 +209,7 @@ public class FirstPersonController : MonoBehaviour
             // Only instantiate the impact decal if one doesn't already exist near the hit point
             if (gun.bulletImpactDecalPrefab != null)
             {
-                float decalCheckRadius = 0.05f; // Adjust this value based on your decal size
+                float decalCheckRadius = 0.05f; // Adjust based on decal size
                 Collider[] nearbyDecals = Physics.OverlapSphere(hit.point, decalCheckRadius);
                 bool decalAlreadyExists = false;
                 foreach (Collider col in nearbyDecals)
@@ -218,7 +230,7 @@ public class FirstPersonController : MonoBehaviour
                         hit.point + hit.normal * decalOffset,
                         Quaternion.LookRotation(-hit.normal)
                     );
-                    // Optionally, parent the decal to the hit object so it moves with it
+                    // Optionally, parent the decal to the hit object so it stays in place
                     decalInstance.transform.SetParent(hit.transform);
                 }
             }
@@ -232,11 +244,16 @@ public class FirstPersonController : MonoBehaviour
         else
         {
             Debug.Log("Missed!");
-            endPoint = cameraTransform.position + cameraTransform.forward * gun.shootRange;
+            endPoint = cameraTransform.position + shotDirection * gun.shootRange;
         }
         // (Optional: add additional visual or audio feedback here)
+        // Inside your Shoot() method, after a successful raycast hit:
+        EnemyHitFlash enemyFlash = hit.transform.GetComponent<EnemyHitFlash>();
+        if (enemyFlash != null) {
+            enemyFlash.Flash();
+        }
+       
     }
-
 
     // Allow switching between different guns using number keys (Alpha1, Alpha2, etc.)
     void HandleGunSwitching()
@@ -259,14 +276,12 @@ public class FirstPersonController : MonoBehaviour
     {
         if (crosshairTexture != null)
         {
-            // Calculate the position to center the crosshair
             float xMin = (Screen.width - crosshairSize.x) / 2;
             float yMin = (Screen.height - crosshairSize.y) / 2;
             GUI.DrawTexture(new Rect(xMin, yMin, crosshairSize.x, crosshairSize.y), crosshairTexture);
         }
         else
         {
-            // Fallback: Draw a simple dot if no texture is assigned
             GUI.Label(new Rect((Screen.width / 2) - 5, (Screen.height / 2) - 5, 10, 10), "•");
         }
     }

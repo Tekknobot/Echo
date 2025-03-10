@@ -11,14 +11,19 @@ public class MazeGenerator : MonoBehaviour {
 
     [Header("Wall Settings")]
     public float wallHeight = 4f;       // Height of the walls
+    // Array of 4 wall colors: (0) Yellow, (1) Red, (2) Blue, (3) Green.
+    public Color[] wallColors = new Color[] { Color.yellow, Color.red, Color.blue, Color.green };
 
     [Header("Colors")]
-    public Color wallColor = Color.gray;
     public Color floorColor = Color.green;
 
     [Header("Prefabs")]
     public GameObject playerPrefab;     // Assign your player prefab in the Inspector
     public GameObject exitPrefab;       // Assign an exit marker prefab in the Inspector (optional)
+
+    [Header("Enemy Settings")]
+    public GameObject enemyPrefab;      // Assign your enemy prefab in the Inspector
+    public int enemyCount = 5;          // Number of enemies to spawn
 
     private Cell[,] cells;
 
@@ -31,9 +36,10 @@ public class MazeGenerator : MonoBehaviour {
         GenerateMaze();
         SetMazeEntrances();   // Remove an outer wall for the entrance and the exit
         BuildMaze();
-        SpawnPlayer();
         CreateFloor();
+        SpawnPlayer();
         SpawnExit();          // Optionally spawn an exit marker at the exit cell
+        SpawnEnemies();       // Spawn enemies throughout the maze
     }
 
     // Initialize a grid of cells
@@ -112,34 +118,53 @@ public class MazeGenerator : MonoBehaviour {
             for (int y = 0; y < height; y++) {
                 Vector3 cellCenter = new Vector3(x * cellSize, 0, y * cellSize);
                 Cell cell = cells[x, y];
+                // Determine the group color based on the cell's quadrant.
+                Color groupColor = GetGroupColor(cell);
 
                 // Adjust Y position by half the wall height so the bottom rests on the floor
                 if (cell.walls[0])
-                    CreateWall(cellCenter + new Vector3(0, wallHeight / 2, -cellSize / 2), new Vector3(cellSize, wallHeight, 0.5f));  // Bottom
+                    CreateWall(cellCenter + new Vector3(0, wallHeight / 2, -cellSize / 2), new Vector3(cellSize, wallHeight, 0.5f), groupColor);  // Bottom
                 if (cell.walls[1])
-                    CreateWall(cellCenter + new Vector3(cellSize / 2, wallHeight / 2, 0), new Vector3(0.5f, wallHeight, cellSize));  // Right
+                    CreateWall(cellCenter + new Vector3(cellSize / 2, wallHeight / 2, 0), new Vector3(0.5f, wallHeight, cellSize), groupColor);  // Right
                 if (cell.walls[2])
-                    CreateWall(cellCenter + new Vector3(0, wallHeight / 2, cellSize / 2), new Vector3(cellSize, wallHeight, 0.5f));  // Top
+                    CreateWall(cellCenter + new Vector3(0, wallHeight / 2, cellSize / 2), new Vector3(cellSize, wallHeight, 0.5f), groupColor);  // Top
                 if (cell.walls[3])
-                    CreateWall(cellCenter + new Vector3(-cellSize / 2, wallHeight / 2, 0), new Vector3(0.5f, wallHeight, cellSize));  // Left
+                    CreateWall(cellCenter + new Vector3(-cellSize / 2, wallHeight / 2, 0), new Vector3(0.5f, wallHeight, cellSize), groupColor);  // Left
             }
         }
     }
 
-    void CreateWall(Vector3 position, Vector3 scale) {
+    // Return a color based on which quadrant the cell belongs to.
+    // Assumes maze cells are indexed from (0,0) to (width-1, height-1)
+    Color GetGroupColor(Cell cell) {
+        // Determine half sizes (as floats)
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
+
+        if (cell.x < halfWidth && cell.y < halfHeight)
+            return wallColors[0]; // Bottom Left - Yellow
+        else if (cell.x >= halfWidth && cell.y < halfHeight)
+            return wallColors[1]; // Bottom Right - Red
+        else if (cell.x < halfWidth && cell.y >= halfHeight)
+            return wallColors[2]; // Top Left - Blue
+        else
+            return wallColors[3]; // Top Right - Green
+    }
+
+    // Create a wall at the given position, scale, and with the given color.
+    void CreateWall(Vector3 position, Vector3 scale, Color color) {
         GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
         wall.transform.position = position;
         wall.transform.localScale = scale;
         wall.transform.parent = transform;
         wall.tag = "wall";
         
-        // Set the wall's color
         Renderer wallRenderer = wall.GetComponent<Renderer>();
         if (wallRenderer != null) {
-            wallRenderer.material.color = wallColor;
+            wallRenderer.material.color = color;
         }
         
-        // Ensure the wall has a BoxCollider (it should by default)
+        // Ensure the wall has a BoxCollider (should be there by default)
         BoxCollider collider = wall.GetComponent<BoxCollider>();
         if(collider == null) {
             collider = wall.AddComponent<BoxCollider>();
@@ -184,6 +209,26 @@ public class MazeGenerator : MonoBehaviour {
             Instantiate(exitPrefab, exitPos, Quaternion.identity);
         } else {
             Debug.LogWarning("Exit prefab not assigned!");
+        }
+    }
+
+    // Spawn enemies randomly throughout the maze (excluding the start and exit cells)
+    void SpawnEnemies() {
+        if (enemyPrefab == null) {
+            Debug.LogWarning("Enemy Prefab not assigned!");
+            return;
+        }
+        for (int i = 0; i < enemyCount; i++) {
+            int randomX = Random.Range(0, width);
+            int randomY = Random.Range(0, height);
+            // Avoid spawning in the starting cell (0,0) and the exit cell (width-1,height-1)
+            if ((randomX == 0 && randomY == 0) || (randomX == width - 1 && randomY == height - 1)) {
+                i--;
+                continue;
+            }
+            // Calculate enemy spawn position (adjust y if necessary)
+            Vector3 enemyPos = new Vector3(randomX * cellSize, 1, randomY * cellSize);
+            Instantiate(enemyPrefab, enemyPos, Quaternion.identity);
         }
     }
 }

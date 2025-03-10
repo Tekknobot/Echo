@@ -6,6 +6,8 @@ TagManager:
   tags:
   - wall
   - floor
+  - BulletImpactDecal
+  - Enemy
   layers:
   - Default
   - TransparentFX

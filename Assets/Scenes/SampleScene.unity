@@ -459,10 +459,16 @@ MonoBehaviour:
   height: 10
   cellSize: 10
   wallHeight: 10
-  wallColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  wallColors:
+  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
   floorColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
   playerPrefab: {fileID: 5095881206533770564, guid: b184bab7af9ee423498d6567e1468d62, type: 3}
   exitPrefab: {fileID: 6233408536601621062, guid: 53fccac9c8f474dccb859229e67e80d3, type: 3}
+  enemyPrefab: {fileID: 6295944965197997687, guid: 14aa2d351007e4da79f082d49b8cc4ca, type: 3}
+  enemyCount: 10
 --- !u!4 &893371370
 Transform:
   m_ObjectHideFlags: 0
