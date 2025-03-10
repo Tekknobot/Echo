@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8300603203579764480}
   - component: {fileID: 6305730631536418046}
   - component: {fileID: 1077920971125591186}
+  - component: {fileID: 8824479869977548407}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -123,3 +124,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flashColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   flashDuration: 0.05
+--- !u!114 &8824479869977548407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6295944965197997687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7b849c821297451d93c65cb4d75321c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 0}
+  attackInterval: 2
+  attackRange: 50
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  knockbackForce: 50
