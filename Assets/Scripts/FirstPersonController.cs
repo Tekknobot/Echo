@@ -206,8 +206,9 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
 
-            // Only instantiate the impact decal if one doesn't already exist near the hit point
-            if (gun.bulletImpactDecalPrefab != null)
+            // Only instantiate the impact decal if one doesn't already exist near the hit point,
+            // and if the hit object is NOT tagged as "Player"
+            if (gun.bulletImpactDecalPrefab != null && !hit.transform.CompareTag("Player"))
             {
                 float decalCheckRadius = 0.05f; // Adjust based on decal size
                 Collider[] nearbyDecals = Physics.OverlapSphere(hit.point, decalCheckRadius);
