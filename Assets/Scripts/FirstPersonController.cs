@@ -206,41 +206,52 @@ public class FirstPersonController : MonoBehaviour
     // Fire a shot using the parameters of the given gun, with bullet spread applied.
     void Shoot(Gun gun)
     {
-    // If pelletCount > 1, treat it as a shotgun.
-    if (gun.pelletCount > 1)
-    {
-        for (int i = 0; i < gun.pelletCount; i++)
+        // In the shotgun branch of your Shoot() method:
+        if (gun.pelletCount > 1)
         {
-            // Generate a random offset inside a circle.
-            Vector2 randomOffset = Random.insideUnitCircle * gun.bulletSpread;
-            // Apply the offset as Euler angles (X for pitch, Y for yaw).
-            Vector3 pelletDirection = Quaternion.Euler(randomOffset.y, randomOffset.x, 0) * cameraTransform.forward;
-
-            Ray pelletRay = new Ray(cameraTransform.position, pelletDirection);
-            RaycastHit pelletHit;
-            if (Physics.Raycast(pelletRay, out pelletHit, gun.shootRange))
+            for (int i = 0; i < gun.pelletCount; i++)
             {
-                ProcessPelletHit(pelletHit, gun);
+                // Generate random angles (in degrees) within the spread range.
+                float randomYaw = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
+                float randomPitch = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
+
+                // Start with the camera's forward direction.
+                Vector3 pelletDirection = cameraTransform.forward;
+                // Rotate the pellet direction around the camera's up axis for yaw,
+                // then around the camera's right axis for pitch.
+                pelletDirection = Quaternion.AngleAxis(randomYaw, cameraTransform.up) * pelletDirection;
+                pelletDirection = Quaternion.AngleAxis(randomPitch, cameraTransform.right) * pelletDirection;
+                pelletDirection.Normalize();
+
+                Ray pelletRay = new Ray(cameraTransform.position, pelletDirection);
+                RaycastHit pelletHit;
+                if (Physics.Raycast(pelletRay, out pelletHit, gun.shootRange))
+                {
+                    ProcessPelletHit(pelletHit, gun);
+                }
             }
         }
-    }
-    else
-    {
-        // For a regular single shot.
-        Vector3 shotDirection = cameraTransform.forward;
-        if (gun.bulletSpread > 0f)
+        else
         {
-            Vector2 randomOffset = Random.insideUnitCircle * gun.bulletSpread;
-            shotDirection = Quaternion.Euler(randomOffset.y, randomOffset.x, 0) * cameraTransform.forward;
+            // For a regular single shot.
+            Vector3 shotDirection = cameraTransform.forward;
+            if (gun.bulletSpread > 0f)
+            {
+                float randomYaw = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
+                float randomPitch = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
+                shotDirection = Quaternion.AngleAxis(randomYaw, cameraTransform.up) * shotDirection;
+                shotDirection = Quaternion.AngleAxis(randomPitch, cameraTransform.right) * shotDirection;
+                shotDirection.Normalize();
+            }
+
+            Ray ray = new Ray(cameraTransform.position, shotDirection);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, gun.shootRange))
+            {
+                ProcessPelletHit(hit, gun);
+            }
         }
 
-        Ray ray = new Ray(cameraTransform.position, shotDirection);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, gun.shootRange))
-        {
-            ProcessPelletHit(hit, gun);
-        }
-    }
 
 
     // Trigger shooting sound effect (once per shot)
@@ -357,6 +368,7 @@ public class FirstPersonController : MonoBehaviour
             Debug.Log("Switched to gun: " + guns[currentGunIndex].gunName);
         }
     }
+
 
     // Draw a simple dot crosshair in the center of the screen.
     void OnGUI()
