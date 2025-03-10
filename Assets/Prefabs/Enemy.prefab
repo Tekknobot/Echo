@@ -147,3 +147,5 @@ MonoBehaviour:
   attackColor: {r: 1, g: 0, b: 0, a: 1}
   preAttackDuration: 2
   postAttackDuration: 0.2
+  preAttackSFX: {fileID: 8300000, guid: fb98596bfbbbd49e39006a8f4d35fec0, type: 3}
+  attackSFX: {fileID: 8300000, guid: e21f781cbaf004cecb8c65571f018a4b, type: 3}

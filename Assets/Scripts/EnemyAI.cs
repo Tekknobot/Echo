@@ -15,6 +15,10 @@ public class EnemyAI : MonoBehaviour
     public float preAttackDuration = 0.5f;       // Time to transition to the attack color.
     public float postAttackDuration = 0.2f;      // Time to quickly revert to the original color.
 
+    [Header("Attack SFX")]
+    public AudioClip preAttackSFX;     // Sound effect played during the pre-attack phase.
+    public AudioClip attackSFX;        // Sound effect played when firing the attack.
+
     private float timer;
     private ScreenFlash screenFlash;           // Reference to the ScreenFlash component.
     private Renderer enemyRenderer;
@@ -66,6 +70,16 @@ public class EnemyAI : MonoBehaviour
     IEnumerator AttackPlayerWithColor()
     {
         isAttacking = true;
+        
+        // Check if the player is visible.
+        bool playerVisible = IsPlayerVisible();
+
+        // Optionally, play pre-attack SFX if the player is visible.
+        if (playerVisible && preAttackSFX != null)
+        {
+            AudioSource.PlayClipAtPoint(preAttackSFX, transform.position);
+        }
+        
         // Gradually change the enemy's color to the attack color.
         float t = 0f;
         while (t < preAttackDuration)
@@ -74,6 +88,12 @@ public class EnemyAI : MonoBehaviour
             if (enemyRenderer != null)
                 enemyRenderer.material.color = Color.Lerp(originalColor, attackColor, t / preAttackDuration);
             yield return null;
+        }
+        
+        // At attack moment, play attack SFX if the player is visible.
+        if (playerVisible && attackSFX != null)
+        {
+            AudioSource.PlayClipAtPoint(attackSFX, transform.position);
         }
         
         // Attack: Fire a raycast at the player.
@@ -92,6 +112,23 @@ public class EnemyAI : MonoBehaviour
             enemyRenderer.material.color = originalColor;
         
         isAttacking = false;
+    }
+
+    // Check if the player is visible to the enemy.
+    bool IsPlayerVisible()
+    {
+        if (player == null)
+            return false;
+
+        Vector3 direction = (player.position - transform.position).normalized;
+        Ray ray = new Ray(transform.position, direction);
+        RaycastHit hit;
+        // Use the same range and obstacle mask.
+        if (Physics.Raycast(ray, out hit, attackRange, obstacleMask))
+        {
+            return hit.transform == player;
+        }
+        return false;
     }
 
     void FireAtPlayer()
@@ -113,7 +150,6 @@ public class EnemyAI : MonoBehaviour
                 }
                 
                 // Knock back the player.
-                // First, try using a Rigidbody.
                 Rigidbody playerRb = player.GetComponent<Rigidbody>();
                 if (playerRb != null)
                 {
@@ -121,7 +157,6 @@ public class EnemyAI : MonoBehaviour
                 }
                 else
                 {
-                    // Otherwise, try using a PlayerKnockback script.
                     PlayerKnockback knockback = player.GetComponent<PlayerKnockback>();
                     if (knockback != null)
                     {
