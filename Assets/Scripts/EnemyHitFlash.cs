@@ -64,6 +64,35 @@ public class EnemyHitFlash : MonoBehaviour {
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        if (isDying)
+            return;  // Prevent damage if already dying
+
+        // Start the flash effect if not already flashing.
+        if (!isFlashing && enemyRenderer != null)
+        {
+            StartCoroutine(FlashCoroutine());
+        }
+
+        // Subtract the damage from health.
+        health -= damage;
+
+        // Update the health slider and its color.
+        if (healthSlider != null)
+        {
+            healthSlider.value = health;
+            UpdateHealthBarColor();
+        }
+
+        // If health is depleted, trigger the death sequence.
+        if (health <= 0 && !isDying)
+        {
+            Die();
+        }
+    }
+
+
     IEnumerator FlashCoroutine() {
         isFlashing = true;
         // Change the material color to the flash color.

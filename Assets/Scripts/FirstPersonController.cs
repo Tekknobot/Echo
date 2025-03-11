@@ -1,29 +1,29 @@
 using UnityEngine;
 using System.Collections;
 
-[System.Serializable]
-public class Gun
-{
-    public string gunName;
-    public bool automatic;           // True for automatic fire; false for semi-automatic
-    public float shootCooldown;      // Time between shots (in seconds)
-    public float shootRange;         // Maximum distance the shot can travel
-    public GameObject bulletRicochetPrefab;  // Prefab used for the bullet ricochet effect
-    public float impactForce = 10f;  // Impact force to apply to the prefab after instantiation
-    public AudioClip shootSFX;       // Audio clip to play on each shot
-    // Decal prefab that will be placed at the hit point
-    public GameObject bulletImpactDecalPrefab;
-    // Bullet spread angle (in degrees) to randomize the shot direction
-    public float bulletSpread = 0f;
-    // NEW: Number of pellets fired (shotgun)
-    public int pelletCount = 6;
-    // NEW: Field-of-view for zoom when using this gun (e.g., 30° for a scoped weapon)
-    public float zoomFOV = 30f;
-}
-
-
 public class FirstPersonController : MonoBehaviour
 {
+    [System.Serializable]
+    public class Gun
+    {
+        public string gunName;
+        public bool automatic;           // True for automatic fire; false for semi-automatic
+        public float shootCooldown;      // Time between shots (in seconds)
+        public float shootRange;         // Maximum distance the shot can travel
+        public GameObject bulletRicochetPrefab;  // Prefab used for the bullet ricochet effect
+        public float impactForce = 10f;  // Impact force to apply to the prefab after instantiation
+        public AudioClip shootSFX;       // Audio clip to play on each shot
+        // Decal prefab that will be placed at the hit point
+        public GameObject bulletImpactDecalPrefab;
+        // Bullet spread angle (in degrees) to randomize the shot direction
+        public float bulletSpread = 0f;
+        // NEW: Number of pellets fired (shotgun)
+        public int pelletCount = 6;
+        // NEW: Field-of-view for zoom when using this gun (e.g., 30° for a scoped weapon)
+        public float zoomFOV = 30f;
+    }    
+    
+    // Movement Settings
     [Header("Movement Settings")]
     public float walkSpeed = 7f;
     public float acceleration = 10f;
@@ -32,46 +32,47 @@ public class FirstPersonController : MonoBehaviour
     public float jumpForce = 7f;
     public float gravity = 20f;
     public float terminalVelocity = 20f;
-    // Run multiplier for when shift is held.
     public float runMultiplier = 1.5f;
 
+    // Mouse Look Settings
     [Header("Mouse Look Settings")]
     public float lookSpeed = 2f;
     public float lookXLimit = 90f;
     public float smoothing = 2f;  // Smoothing factor for mouse look
 
+    // Shooting Settings
     [Header("Shooting Settings")]
-    // Array of guns to choose from; assign in the Inspector
-    public Gun[] guns;
-    // The index of the currently active gun
+    public Gun[] guns;                   // Array of guns (assign via Inspector)
     public int currentGunIndex = 0;
 
+    // Crosshair Settings
     [Header("Crosshair Settings")]
-    // Assign a small dot texture (e.g., a white dot) via the Inspector
     public Texture2D crosshairTexture;
-    // Size of the crosshair on screen (in pixels)
     public Vector2 crosshairSize = new Vector2(16, 16);
 
+    // References
     [Header("References")]
     public Transform cameraTransform;
 
-    // Add this new header and field near the top of your FirstPersonController class:
+    // Gun Switching SFX
     [Header("Gun Switching SFX")]
     public AudioClip gunSwitchSFX;
 
-    // Zoom speed Lerp multiplier.
+    // Zoom Settings
     public float zoomLerpSpeed = 10f;
 
+    // Grenade Settings
+    [Header("Grenade Settings")]
+    public GameObject grenadePrefab;     // Grenade prefab (should have Rigidbody & Grenade script)
+    public float grenadeTossForce = 10f;   // Force applied when tossing the grenade
+
+    // Private variables
     private CharacterController controller;
     private Vector3 velocity;
     private float rotationX = 0f;
     private float defaultFOV;
-
-    // Variables for smoothing mouse look
     private float smoothX;
     private float smoothY;
-
-    // Shooting cooldown tracker
     private float lastShootTime = 0f;
 
     void Start()
@@ -81,7 +82,6 @@ public class FirstPersonController : MonoBehaviour
         {
             cameraTransform = Camera.main.transform;
         }
-        // Cache the camera's default FOV.
         Camera cam = cameraTransform.GetComponent<Camera>();
         if (cam != null)
         {
@@ -98,18 +98,12 @@ public class FirstPersonController : MonoBehaviour
         HandleShooting();
         HandleGunSwitching();
         HandleZoom();
-    }
 
-    // Smoothly adjust camera FOV when right-click is held.
-    void HandleZoom()
-    {
-        Camera cam = cameraTransform.GetComponent<Camera>();
-        if (cam == null || guns == null || guns.Length == 0)
-            return;
-
-        // Use the current gun's zoomFOV if right mouse button is held, else default.
-        float targetFOV = Input.GetMouseButton(1) ? guns[currentGunIndex].zoomFOV : defaultFOV;
-        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime * zoomLerpSpeed);
+        // Toss a grenade when the G key is pressed.
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            TossGrenade();
+        }
     }
 
     // Mouse look with smoothing.
@@ -128,7 +122,7 @@ public class FirstPersonController : MonoBehaviour
         cameraTransform.localRotation = Quaternion.Euler(rotationX, 0, 0);
     }
 
-    // Movement code, with running.
+    // Basic movement and jumping.
     void HandleMovement()
     {
         Vector3 inputDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
@@ -166,15 +160,13 @@ public class FirstPersonController : MonoBehaviour
         {
             velocity.y -= gravity * Time.deltaTime;
             if (velocity.y < -terminalVelocity)
-            {
                 velocity.y = -terminalVelocity;
-            }
         }
 
         controller.Move(velocity * Time.deltaTime);
     }
 
-    // Handle shooting based on the current gun type (automatic vs. semi-automatic).
+    // Handles shooting for automatic and semi-automatic guns.
     void HandleShooting()
     {
         if (guns == null || guns.Length == 0)
@@ -203,22 +195,16 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
-    // Fire a shot using the parameters of the given gun, with bullet spread applied.
+    // Shoot method handles both shotgun (multiple pellets) and single-shot weapons.
     void Shoot(Gun gun)
     {
-        // In the shotgun branch of your Shoot() method:
         if (gun.pelletCount > 1)
         {
             for (int i = 0; i < gun.pelletCount; i++)
             {
-                // Generate random angles (in degrees) within the spread range.
                 float randomYaw = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
                 float randomPitch = Random.Range(-gun.bulletSpread * 0.5f, gun.bulletSpread * 0.5f);
-
-                // Start with the camera's forward direction.
                 Vector3 pelletDirection = cameraTransform.forward;
-                // Rotate the pellet direction around the camera's up axis for yaw,
-                // then around the camera's right axis for pitch.
                 pelletDirection = Quaternion.AngleAxis(randomYaw, cameraTransform.up) * pelletDirection;
                 pelletDirection = Quaternion.AngleAxis(randomPitch, cameraTransform.right) * pelletDirection;
                 pelletDirection.Normalize();
@@ -233,7 +219,6 @@ public class FirstPersonController : MonoBehaviour
         }
         else
         {
-            // For a regular single shot.
             Vector3 shotDirection = cameraTransform.forward;
             if (gun.bulletSpread > 0f)
             {
@@ -243,7 +228,6 @@ public class FirstPersonController : MonoBehaviour
                 shotDirection = Quaternion.AngleAxis(randomPitch, cameraTransform.right) * shotDirection;
                 shotDirection.Normalize();
             }
-
             Ray ray = new Ray(cameraTransform.position, shotDirection);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, gun.shootRange))
@@ -252,29 +236,25 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 
-
-
-    // Trigger shooting sound effect (once per shot)
-    if (gun.shootSFX != null)
-    {
-        AudioSource.PlayClipAtPoint(gun.shootSFX, cameraTransform.position);
+        if (gun.shootSFX != null)
+        {
+            AudioSource.PlayClipAtPoint(gun.shootSFX, cameraTransform.position);
+        }
+        // Trigger camera shake if a CameraShake component exists on the camera.
+        CameraShake shake = cameraTransform.GetComponent<CameraShake>();
+        if (shake != null)
+        {
+            StartCoroutine(shake.Shake(shake.defaultShakeDuration, shake.defaultShakeMagnitude));
+        }
     }
-    // Trigger camera shake
-    CameraShake shake = cameraTransform.GetComponent<CameraShake>();
-    if (shake != null)
-    {
-        StartCoroutine(shake.Shake(shake.defaultShakeDuration, shake.defaultShakeMagnitude));
-    }
-}
 
+    // Processes a hit from a bullet/pellet.
     void ProcessPelletHit(RaycastHit hit, Gun gun)
     {
-        // Process bullet ricochet effect.
+        // Handle bullet ricochet effect.
         if (gun.bulletRicochetPrefab != null)
         {
             GameObject impactInstance = Instantiate(gun.bulletRicochetPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-
-            // Enable emission and flash using the fragment’s base color.
             Renderer fragRenderer = impactInstance.GetComponent<Renderer>();
             if (fragRenderer != null)
             {
@@ -284,7 +264,6 @@ public class FirstPersonController : MonoBehaviour
                 fragRenderer.material.SetColor("_EmissionColor", baseColor * 2.0f);
                 StartCoroutine(ResetFragmentEmission(fragRenderer, originalEmission, 3f));
             }
-
             Rigidbody rb = impactInstance.GetComponent<Rigidbody>();
             if (rb != null)
             {
@@ -292,7 +271,7 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 
-        // Process decal instantiation.
+        // Handle bullet impact decal instantiation.
         if (gun.bulletImpactDecalPrefab != null && !hit.transform.CompareTag("Player"))
         {
             float decalCheckRadius = 0.05f;
@@ -318,7 +297,7 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 
-        // Process enemy hit flash.
+        // Handle enemy hit flash.
         EnemyHitFlash enemyFlash = hit.transform.GetComponent<EnemyHitFlash>();
         if (enemyFlash != null)
         {
@@ -326,6 +305,7 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Coroutine to gradually reset emission on impact fragments.
     IEnumerator ResetFragmentEmission(Renderer rend, Color originalEmission, float duration)
     {
         if (rend == null)
@@ -343,7 +323,7 @@ public class FirstPersonController : MonoBehaviour
         rend.material.SetColor("_EmissionColor", originalEmission);
     }
 
-    // Allow switching between different guns using number keys (Alpha1, Alpha2, etc.)
+    // Switch guns using the mouse scroll wheel.
     void HandleGunSwitching()
     {
         if (guns == null || guns.Length == 0)
@@ -351,7 +331,6 @@ public class FirstPersonController : MonoBehaviour
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         int previousGunIndex = currentGunIndex;
-        
         if (scroll > 0f)
         {
             currentGunIndex = (currentGunIndex + 1) % guns.Length;
@@ -360,8 +339,6 @@ public class FirstPersonController : MonoBehaviour
         {
             currentGunIndex = (currentGunIndex - 1 + guns.Length) % guns.Length;
         }
-        
-        // If the gun index has changed, play the switching sound.
         if (currentGunIndex != previousGunIndex && gunSwitchSFX != null)
         {
             AudioSource.PlayClipAtPoint(gunSwitchSFX, cameraTransform.position);
@@ -369,8 +346,35 @@ public class FirstPersonController : MonoBehaviour
         }
     }
 
+    // Smoothly zoom the camera FOV when right-click is held.
+    void HandleZoom()
+    {
+        Camera cam = cameraTransform.GetComponent<Camera>();
+        if (cam == null || guns == null || guns.Length == 0)
+            return;
 
-    // Draw a simple dot crosshair in the center of the screen.
+        float targetFOV = Input.GetMouseButton(1) ? guns[currentGunIndex].zoomFOV : defaultFOV;
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFOV, Time.deltaTime * zoomLerpSpeed);
+    }
+
+    // Toss a grenade from the camera position.
+    void TossGrenade()
+    {
+        if (grenadePrefab == null)
+        {
+            Debug.LogWarning("Grenade prefab not assigned!");
+            return;
+        }
+        Vector3 spawnPos = cameraTransform.position + cameraTransform.forward;
+        GameObject grenade = Instantiate(grenadePrefab, spawnPos, Quaternion.identity);
+        Rigidbody rb = grenade.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.AddForce(cameraTransform.forward * grenadeTossForce, ForceMode.Impulse);
+        }
+    }
+
+    // Draws a simple crosshair on screen.
     void OnGUI()
     {
         if (crosshairTexture != null)

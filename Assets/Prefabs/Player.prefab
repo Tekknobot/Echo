@@ -101,7 +101,7 @@ MonoBehaviour:
   - gunName: Shotgun
     automatic: 0
     shootCooldown: 1
-    shootRange: 50
+    shootRange: 100
     bulletRicochetPrefab: {fileID: 5740520505562322749, guid: 277bcc0274ecc44a6b29e06af4e032df, type: 3}
     impactForce: 2
     shootSFX: {fileID: 8300000, guid: 58aa3dc6f4a854ed69bb5c5c8ea0abb8, type: 3}
@@ -137,6 +137,8 @@ MonoBehaviour:
   cameraTransform: {fileID: 354474813519560832}
   gunSwitchSFX: {fileID: 8300000, guid: 7718fc8e6a1274399b4d5a6129734f7b, type: 3}
   zoomLerpSpeed: 10
+  grenadePrefab: {fileID: 5740520505562322749, guid: 3955199f829c44bc79f5721f2e533ccb, type: 3}
+  grenadeTossForce: 15
 --- !u!114 &6743723431881102354
 MonoBehaviour:
   m_ObjectHideFlags: 0
