@@ -26,7 +26,7 @@ public class MazePathfinder : MonoBehaviour {
         lineRenderer.startWidth = lineWidth;
         lineRenderer.endWidth = lineWidth;
         // Use a basic material.
-        //lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.positionCount = 0;
 
         // Compute the path using BFS.
