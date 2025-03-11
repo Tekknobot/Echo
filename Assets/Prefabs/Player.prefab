@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6743723431881102354}
   - component: {fileID: -1761771252585669109}
   - component: {fileID: 1409345752717500032}
+  - component: {fileID: 4237608950213336729}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -163,6 +164,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   currentHealth: 100
+  healthBar: {fileID: 0}
   exitPoint: {fileID: 0}
   fallDuration: 2
   fallTiltAngle: 90
@@ -181,6 +183,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallThreshold: -30
   delayBeforeRestart: 0
+--- !u!136 &4237608950213336729
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5095881206533770564}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8738674049698886906
 GameObject:
   m_ObjectHideFlags: 0
@@ -295,7 +320,7 @@ MonoBehaviour:
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4294967295
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
