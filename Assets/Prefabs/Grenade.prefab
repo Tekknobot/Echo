@@ -136,7 +136,7 @@ MonoBehaviour:
   explosionDamage: 14
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   tossSFX: {fileID: 8300000, guid: dd0c1807fb17a4187a08be5f2d4330bc, type: 3}
-  explosionSFX: {fileID: 8300000, guid: ce2cbf7c0dcf843e9a4ccc678800ddb3, type: 3}
+  explosionSFX: {fileID: 8300000, guid: bf064943e15774f69961f794db7b7e71, type: 3}
 --- !u!136 &2212002089610872001
 CapsuleCollider:
   m_ObjectHideFlags: 0
