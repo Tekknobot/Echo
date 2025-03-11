@@ -132,6 +132,14 @@ public class EnemyAI : MonoBehaviour
 
     void FireAtPlayer()
     {
+        // Check if the enemy's health is above 0.
+        EnemyHitFlash enemyHealth = GetComponent<EnemyHitFlash>();
+        if (enemyHealth != null && enemyHealth.health <= 0)
+        {
+            // Enemy is "dead" so do not fire.
+            return;
+        }
+        
         // Calculate direction from enemy to player.
         Vector3 direction = (player.position - transform.position).normalized;
         Ray ray = new Ray(transform.position, direction);
@@ -165,4 +173,5 @@ public class EnemyAI : MonoBehaviour
             }
         }
     }
+
 }
