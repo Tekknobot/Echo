@@ -60,7 +60,9 @@ public class EnemyAI : MonoBehaviour
             return;
 
         timer -= Time.deltaTime;
-        if (timer <= 0f && !isAttacking)
+        // Only begin attack if the timer is up, the enemy isn't already attacking,
+        // and the player is visible.
+        if (timer <= 0f && !isAttacking && IsPlayerVisible())
         {
             StartCoroutine(AttackPlayerWithColor());
             timer = attackInterval;
@@ -71,11 +73,8 @@ public class EnemyAI : MonoBehaviour
     {
         isAttacking = true;
         
-        // Check if the player is visible.
-        bool playerVisible = IsPlayerVisible();
-
-        // Optionally, play pre-attack SFX if the player is visible.
-        if (playerVisible && preAttackSFX != null)
+        // Play pre-attack SFX if the player is visible.
+        if (preAttackSFX != null)
         {
             AudioSource.PlayClipAtPoint(preAttackSFX, transform.position);
         }
@@ -91,7 +90,7 @@ public class EnemyAI : MonoBehaviour
         }
         
         // At attack moment, play attack SFX if the player is visible.
-        if (playerVisible && attackSFX != null)
+        if (attackSFX != null)
         {
             AudioSource.PlayClipAtPoint(attackSFX, transform.position);
         }
@@ -114,7 +113,7 @@ public class EnemyAI : MonoBehaviour
         isAttacking = false;
     }
 
-    // Check if the player is visible to the enemy.
+    // Returns true if the player is visible to the enemy.
     bool IsPlayerVisible()
     {
         if (player == null)
