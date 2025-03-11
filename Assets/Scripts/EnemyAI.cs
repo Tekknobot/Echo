@@ -89,12 +89,6 @@ public class EnemyAI : MonoBehaviour
             yield return null;
         }
         
-        // At attack moment, play attack SFX if the player is visible.
-        if (attackSFX != null)
-        {
-            AudioSource.PlayClipAtPoint(attackSFX, transform.position);
-        }
-        
         // Attack: Fire a raycast at the player.
         FireAtPlayer();
         
@@ -139,7 +133,13 @@ public class EnemyAI : MonoBehaviour
             // Enemy is "dead" so do not fire.
             return;
         }
-        
+
+        // At attack moment, play attack SFX if the player is visible.
+        if (attackSFX != null)
+        {
+            AudioSource.PlayClipAtPoint(attackSFX, transform.position);
+        }
+
         // Calculate direction from enemy to player.
         Vector3 direction = (player.position - transform.position).normalized;
         Ray ray = new Ray(transform.position, direction);
