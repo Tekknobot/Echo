@@ -131,7 +131,7 @@ MonoBehaviour:
   fuseTime: 3
   shrapnelPrefab: {fileID: 5740520505562322749, guid: 68f790b24006143ef82f899ee30279fa, type: 3}
   shrapnelCount: 50
-  shrapnelForce: 50
+  shrapnelForce: 10
   blastRadius: 10
   explosionDamage: 14
   flashColor: {r: 1, g: 0, b: 0, a: 1}

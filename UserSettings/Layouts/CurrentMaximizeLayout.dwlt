@@ -24,7 +24,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 74673
+  controlID: 77261
   draggingID: 0
 --- !u!114 &2
 MonoBehaviour:
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 74674
+  controlID: 77262
   draggingID: 0
 --- !u!114 &4
 MonoBehaviour:
@@ -177,7 +177,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 74675
+  controlID: 77263
   draggingID: 0
 --- !u!114 &5
 MonoBehaviour:
@@ -998,8 +998,8 @@ MonoBehaviour:
     y: 642.5
     width: 1073.5
     height: 217.5
-  m_MinSize: {x: 231, y: 276}
-  m_MaxSize: {x: 10001, y: 10026}
+  m_MinSize: {x: 230, y: 250}
+  m_MaxSize: {x: 10000, y: 10000}
   m_ActualView: {fileID: 10}
   m_Panes:
   - {fileID: 10}
@@ -1055,7 +1055,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Prefabs
+    - Assets/Scripts
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -1065,15 +1065,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 73
   m_LastFolders:
-  - Assets/Prefabs
+  - Assets/Scripts
   m_LastFoldersGridSize: 73
   m_LastProjectPath: /Users/machome/Unity Projects/Echo
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 80a70000
-    m_LastClickedID: 42880
+    m_SelectedIDs: 84a70000
+    m_LastClickedID: 42884
     m_ExpandedIDs: 00000000a2a50000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -1129,8 +1129,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
+    m_SelectedInstanceIDs: 902b0100
+    m_LastClickedInstanceID: 76688
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c62300004ec0000030c000001a17010026160100da160100c4160100ca160100ec170100b4170100881601009c160100341701006e16010000000000
     m_RenameOverlay:
@@ -1157,7 +1157,7 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
     m_NewAssetIndexInList: -1
-    m_ScrollPosition: {x: 0, y: 0}
+    m_ScrollPosition: {x: 0, y: 80.5}
     m_GridSize: 73
   m_SkipHiddenPackages: 0
   m_DirectoriesAreaWidth: 149
@@ -1488,7 +1488,7 @@ MonoBehaviour:
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
   m_LastInspectedObjectInstanceID: -1
-  m_LastVerticalScrollValue: 0
+  m_LastVerticalScrollValue: 513.7427
   m_GlobalObjectId: 
   m_InspectorMode: 0
   m_LockTracker:

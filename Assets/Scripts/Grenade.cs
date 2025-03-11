@@ -108,7 +108,7 @@ public class Grenade : MonoBehaviour
             Rigidbody rb = shrapnel.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.AddForce(randomDir * shrapnelForce, ForceMode.Impulse);
+                rb.AddForce(Vector3.up * shrapnelForce, ForceMode.Impulse);
             }
         }
         // Destroy the grenade after explosion.
