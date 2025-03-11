@@ -81,7 +81,7 @@ MonoBehaviour:
   friction: 6
   jumpForce: 5
   gravity: 9.81
-  terminalVelocity: 20
+  terminalVelocity: 16
   runMultiplier: 1.5
   lookSpeed: 2
   lookXLimit: 90
@@ -107,7 +107,7 @@ MonoBehaviour:
     shootSFX: {fileID: 8300000, guid: 58aa3dc6f4a854ed69bb5c5c8ea0abb8, type: 3}
     bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
     bulletSpread: 5
-    pelletCount: 16
+    pelletCount: 20
     zoomFOV: 30
   - gunName: Pistol
     automatic: 0

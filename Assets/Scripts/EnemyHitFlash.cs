@@ -123,8 +123,8 @@ public class EnemyHitFlash : MonoBehaviour {
         float duration = 25f;
         float elapsed = 0f;
         while (elapsed < duration) {
-            // Gradually elevate the enemy (2 units per second upward).
-            transform.position += new Vector3(0, 2f * Time.deltaTime, 0);
+            // Gradually elevate the enemy (3 units per second upward).
+            transform.position += new Vector3(0, 3f * Time.deltaTime, 0);
             elapsed += Time.deltaTime;
             yield return null;
         }
