@@ -171,6 +171,21 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
+    void CreateWallWithDoor(Vector3 position, Vector3 fullScale, Color color, float doorWidth) {
+        // Calculate the scales for the two wall segments around the door.
+        float halfWall = (fullScale.x - doorWidth) / 2f;
+        // Left segment
+        Vector3 leftScale = new Vector3(halfWall, fullScale.y, fullScale.z);
+        Vector3 leftPos = position + new Vector3(- (doorWidth / 2f + halfWall / 2f), 0, 0);
+        CreateWall(leftPos, leftScale, color);
+        
+        // Right segment
+        Vector3 rightScale = leftScale;
+        Vector3 rightPos = position + new Vector3((doorWidth / 2f + halfWall / 2f), 0, 0);
+        CreateWall(rightPos, rightScale, color);
+    }
+
+
     // Spawn the player at the starting cell (cell (0,0)) facing the open corridor.
     void SpawnPlayer() {
         if (playerPrefab != null) {
