@@ -8,6 +8,7 @@ TagManager:
   - floor
   - BulletImpactDecal
   - Enemy
+  - Exit
   layers:
   - Default
   - TransparentFX
