@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
@@ -6,6 +7,9 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 100;
     public int currentHealth;
+
+    // Reference to the UI Slider that will display the player's health.
+    public Slider healthBar;
 
     // Optional: If an exit point is not assigned via the Inspector,
     // the script will attempt to find one with the tag "Exit".
@@ -21,6 +25,28 @@ public class PlayerHealth : MonoBehaviour
     void Start()
     {
         currentHealth = maxHealth;
+        
+        // If healthBar hasn't been set in the Inspector, try to find it by tag.
+        if (healthBar == null)
+        {
+            GameObject healthBarObj = GameObject.FindGameObjectWithTag("HealthBar");
+            if (healthBarObj != null)
+            {
+                healthBar = healthBarObj.GetComponent<Slider>();
+            }
+            else
+            {
+                Debug.LogWarning("HealthBar with tag 'HealthBar' not found in the scene.");
+            }
+        }
+        
+        // Initialize the healthBar if assigned.
+        if (healthBar != null)
+        {
+            healthBar.maxValue = maxHealth;
+            healthBar.value = currentHealth;
+            UpdateHealthBarColor();
+        }
         
         // If exitPoint isn't set in the Inspector, try finding it by tag.
         if (exitPoint == null)
@@ -39,9 +65,43 @@ public class PlayerHealth : MonoBehaviour
         currentHealth -= amount;
         Debug.Log("Player took damage: " + amount + " | Current Health: " + currentHealth);
         
+        // Update the healthBar display.
+        if (healthBar != null)
+        {
+            healthBar.value = currentHealth;
+            UpdateHealthBarColor();
+        }
+        
         if (currentHealth <= 0)
         {
             Die();
+        }
+    }
+    
+    // Update the health bar's fill color based on current health.
+    void UpdateHealthBarColor()
+    {
+        if (healthBar == null || healthBar.fillRect == null)
+            return;
+        
+        Image fillImage = healthBar.fillRect.GetComponent<Image>();
+        if (fillImage == null)
+            return;
+        
+        float healthPercentage = (float)currentHealth / maxHealth;
+        
+        // Determine color based on health percentage.
+        if (healthPercentage > 0.66f)
+        {
+            fillImage.color = Color.green;
+        }
+        else if (healthPercentage > 0.33f)
+        {
+            fillImage.color = Color.yellow;
+        }
+        else
+        {
+            fillImage.color = Color.red;
         }
     }
     

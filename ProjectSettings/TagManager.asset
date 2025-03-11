@@ -9,6 +9,7 @@ TagManager:
   - BulletImpactDecal
   - Enemy
   - Exit
+  - HealthBar
   layers:
   - Default
   - TransparentFX

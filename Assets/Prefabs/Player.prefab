@@ -88,7 +88,7 @@ MonoBehaviour:
   guns:
   - gunName: SMG
     automatic: 1
-    shootCooldown: 0.075
+    shootCooldown: 0.07
     shootRange: 100
     bulletRicochetPrefab: {fileID: 5740520505562322749, guid: 277bcc0274ecc44a6b29e06af4e032df, type: 3}
     impactForce: 2
@@ -117,6 +117,17 @@ MonoBehaviour:
     shootSFX: {fileID: 8300000, guid: 38aef5e38ed724283b03379e925f78ba, type: 3}
     bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
     bulletSpread: 0
+    pelletCount: 1
+    zoomFOV: 30
+  - gunName: Rifle
+    automatic: 1
+    shootCooldown: 0.1
+    shootRange: 100
+    bulletRicochetPrefab: {fileID: 5740520505562322749, guid: 277bcc0274ecc44a6b29e06af4e032df, type: 3}
+    impactForce: 2
+    shootSFX: {fileID: 8300000, guid: b63bd9fb19161411c934966fd2b0574c, type: 3}
+    bulletImpactDecalPrefab: {fileID: 3974686683080704465, guid: c3060c14772b5436c9bb99ea016a9d5f, type: 3}
+    bulletSpread: 1.5
     pelletCount: 1
     zoomFOV: 30
   currentGunIndex: 0
@@ -153,8 +164,9 @@ MonoBehaviour:
   maxHealth: 100
   currentHealth: 100
   exitPoint: {fileID: 0}
-  moveDuration: 5
-  arcHeight: 100
+  fallDuration: 2
+  fallTiltAngle: 90
+  restartDelay: 1
 --- !u!114 &1409345752717500032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,6 +179,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04a91f36501414a369d2de102d27e95a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fallThreshold: -30
+  delayBeforeRestart: 0
 --- !u!1 &8738674049698886906
 GameObject:
   m_ObjectHideFlags: 0

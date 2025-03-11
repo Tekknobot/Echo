@@ -60,6 +60,10 @@ public class EnemyAI : MonoBehaviour
         if (player == null)
             return;
 
+        // Always face the player. Only adjust the Y axis to prevent tilting up/down.
+        Vector3 lookAtPos = new Vector3(player.position.x, transform.position.y, player.position.z);
+        transform.LookAt(lookAtPos);
+
         timer -= Time.deltaTime;
         // Only begin attack if the timer is up, the enemy isn't already attacking,
         // and the player is visible.
