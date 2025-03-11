@@ -171,15 +171,19 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
-    // Spawn the player at the starting cell (cell (0,0))
+    // Spawn the player at the starting cell (cell (0,0)) facing the open corridor.
     void SpawnPlayer() {
         if (playerPrefab != null) {
             Vector3 spawnPos = new Vector3(0, 2, 0); // Adjust height if necessary
-            Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+            GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+            // Since SetMazeEntrances() removes the left wall of cell (0,0),
+            // set the player to face left (the open corridor).
+            player.transform.rotation = Quaternion.LookRotation(Vector3.left);
         } else {
             Debug.LogWarning("Player Prefab not assigned!");
         }
     }
+
 
     // Create a floor to cover the maze so the player doesn't fall continuously.
     void CreateFloor() {

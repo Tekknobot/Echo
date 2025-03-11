@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 4709898813491735430}
   - component: {fileID: 3054932987548888827}
   - component: {fileID: 6743723431881102354}
+  - component: {fileID: -1761771252585669109}
+  - component: {fileID: 1409345752717500032}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -136,6 +138,35 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   knockbackDecay: 5
+--- !u!114 &-1761771252585669109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5095881206533770564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5b5328c11f2947728ede8a04bbaf31e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 100
+  exitPoint: {fileID: 0}
+  moveDuration: 5
+  arcHeight: 100
+--- !u!114 &1409345752717500032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5095881206533770564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04a91f36501414a369d2de102d27e95a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8738674049698886906
 GameObject:
   m_ObjectHideFlags: 0

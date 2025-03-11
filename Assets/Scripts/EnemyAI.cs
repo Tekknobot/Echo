@@ -9,6 +9,7 @@ public class EnemyAI : MonoBehaviour
     public float attackRange = 50f;   // Maximum distance for the raycast.
     public LayerMask obstacleMask;    // Layers that block the ray.
     public float knockbackForce = 5f; // Force to push the player on hit.
+    public int damage = 25;           // Damage to apply to the player.
 
     [Header("Attack Color Settings")]
     public Color attackColor = Color.red;      // The color the enemy transitions to when attacking.
@@ -156,6 +157,13 @@ public class EnemyAI : MonoBehaviour
                     screenFlash.Flash();
                 }
                 
+                // Apply damage to the player.
+                PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    playerHealth.TakeDamage(damage);
+                }
+                
                 // Knock back the player.
                 Rigidbody playerRb = player.GetComponent<Rigidbody>();
                 if (playerRb != null)
@@ -173,5 +181,4 @@ public class EnemyAI : MonoBehaviour
             }
         }
     }
-
 }

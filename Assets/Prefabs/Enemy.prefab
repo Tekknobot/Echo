@@ -144,6 +144,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   knockbackForce: 50
+  damage: 20
   attackColor: {r: 1, g: 0, b: 0, a: 1}
   preAttackDuration: 2
   postAttackDuration: 0.2
