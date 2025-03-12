@@ -22,7 +22,6 @@ public class Grenade : MonoBehaviour
     public AudioClip explosionSFX;          // Sound effect played when the grenade explodes.
 
     [Header("Visual Explosion Settings")]
-    public float blastVisualDuration = 1f;  // Duration of the visual explosion effect.
     public Material blastEffectMaterial;    // Predefined material for the blast effect.
 
     private Renderer rend;
@@ -91,7 +90,6 @@ public class Grenade : MonoBehaviour
         GameObject blastEffectGO = new GameObject("BlastEffect");
         blastEffectGO.transform.position = transform.position;
         BlastEffect blastEffect = blastEffectGO.AddComponent<BlastEffect>();
-        blastEffect.scaleDuration = blastVisualDuration;
         blastEffect.blastRadius = blastRadius;
         blastEffect.blastColor = flashColor;
         blastEffect.blastMaterial = blastEffectMaterial != null ? blastEffectMaterial : new Material(Shader.Find("Legacy Shaders/Transparent/Diffuse"));
