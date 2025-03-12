@@ -25,8 +25,12 @@ public class MazeGenerator : MonoBehaviour {
     public int enemyCount = 5;
     
     [Header("Materials")]
-    // Assign a predefined material with your desired shader in the Inspector.
+    // Predefined material for maze walls and other elements.
     public Material mazeElementMaterial;
+
+    [Header("Floor Material")]
+    // Assign a material with your desired floor texture in the Inspector.
+    public Material floorMaterial;
 
     private Cell[,] cells;
 
@@ -152,9 +156,8 @@ public class MazeGenerator : MonoBehaviour {
 
         Renderer wallRenderer = wall.GetComponent<Renderer>();
         if (wallRenderer != null && mazeElementMaterial != null) {
-            // Create an instance of the predefined material
+            // Create an instance of the predefined material.
             Material instanceMat = Instantiate(mazeElementMaterial);
-            // Set the color property; ensure your shader supports a _Color property.
             instanceMat.color = color;
             wallRenderer.material = instanceMat;
         }
@@ -173,6 +176,7 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
+    // Updated CreateFloor: Use a floor material with a texture if assigned.
     void CreateFloor() {
         GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
         floor.tag = "floor";
@@ -188,12 +192,20 @@ public class MazeGenerator : MonoBehaviour {
 
         Renderer floorRenderer = floor.GetComponent<Renderer>();
         if (floorRenderer != null) {
-            // If desired, you can also use the predefined material for the floor:
-            Material floorMat = mazeElementMaterial != null ? Instantiate(mazeElementMaterial) : new Material(Shader.Find("Standard"));
+            Material floorMat;
+            // Use the assigned floor material with texture if available.
+            if (floorMaterial != null) {
+                floorMat = Instantiate(floorMaterial);
+            } else {
+                floorMat = new Material(Shader.Find("Standard"));
+            }
             floorMat.color = floorColor;
+            // Adjust texture tiling so it scales based on maze size (which is affected by cellSize).
+            floorMat.mainTextureScale = new Vector2((width * cellSize) / 10f, (height * cellSize) / 10f);
             floorRenderer.material = floorMat;
         }
     }
+
 
     void SpawnExit() {
         if (exitPrefab != null) {

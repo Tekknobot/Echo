@@ -656,6 +656,7 @@ MonoBehaviour:
   enemyPrefab: {fileID: 6295944965197997687, guid: 14aa2d351007e4da79f082d49b8cc4ca, type: 3}
   enemyCount: 10
   mazeElementMaterial: {fileID: 2100000, guid: 6728196dba0f2450dbeda631045b451f, type: 2}
+  floorMaterial: {fileID: 2100000, guid: 85bbbb1b5472d42f3979fbe6a3d6ef61, type: 2}
 --- !u!4 &893371370
 Transform:
   m_ObjectHideFlags: 0
