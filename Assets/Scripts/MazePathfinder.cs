@@ -29,7 +29,7 @@ public class MazePathfinder : MonoBehaviour {
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
         lineRenderer.positionCount = 0;
 
-        // Compute the path using BFS.
+        // Compute the initial path using BFS.
         List<Cell> path = FindPath();
         if (path != null && path.Count > 0) {
             DrawPath(path);
@@ -114,16 +114,33 @@ public class MazePathfinder : MonoBehaviour {
     }
 
     // Draw the path using the LineRenderer by converting cell coordinates to world positions.
-    // This conversion is done relative to the MazeGenerator's transform.
+    // This conversion is done relative to the MazeGenerator's transform position.
     void DrawPath(List<Cell> path) {
+        // Use the MazeGenerator's transform position as the origin.
+        DrawPath(path, mazeGenerator.transform.position);
+    }
+
+    // Overloaded DrawPath method that accepts an origin offset.
+    void DrawPath(List<Cell> path, Vector3 origin) {
         int count = path.Count;
         lineRenderer.positionCount = count;
         float cellSize = mazeGenerator.cellSize;
         for (int i = 0; i < count; i++) {
             Cell cell = path[i];
-            // Convert cell coordinates to a world position relative to the MazeGenerator.
-            Vector3 position = mazeGenerator.transform.position + new Vector3(cell.x * cellSize, lineYOffset, cell.y * cellSize);
+            Vector3 position = origin + new Vector3(cell.x * cellSize, lineYOffset, cell.y * cellSize);
             lineRenderer.SetPosition(i, position);
+        }
+    }
+
+    // Public method to reconfigure the pathfinder after the maze is reconfigured.
+    // This method is called from MazeGenerator.ReconfigureMaze().
+    public void Reconfigure(Vector3 newOrigin, Cell[,] newCells) {
+        // Recalculate the path using the updated maze cells.
+        List<Cell> path = FindPath(); // MazeGenerator.Cells is updated at this point.
+        if (path != null && path.Count > 0) {
+            DrawPath(path, newOrigin);
+        } else {
+            Debug.LogWarning("Path not found after reconfiguration!");
         }
     }
 }

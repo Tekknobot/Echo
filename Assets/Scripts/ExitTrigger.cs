@@ -1,13 +1,24 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ExitTrigger : MonoBehaviour {
-    // This method is called when another collider enters the trigger collider attached to the exit.
+    private MazeGenerator mazeGenerator;
+    private bool hasTriggered = false;
+
+    void Start() {
+        // Find the GameObject with the tag "Maze"
+        GameObject mazeObj = GameObject.FindGameObjectWithTag("Maze");
+        if (mazeObj != null) {
+            mazeGenerator = mazeObj.GetComponent<MazeGenerator>();
+        } else {
+            Debug.LogWarning("Maze object with tag 'Maze' not found!");
+        }
+    }
+
     void OnTriggerEnter(Collider other) {
-        // Check if the colliding object has the "Player" tag.
-        if (other.CompareTag("Player")) {
-            // Restart the current scene.
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if (!hasTriggered && other.CompareTag("Player") && mazeGenerator != null) {
+            hasTriggered = true;
+            // Reconfigure the maze layout in-place.
+            mazeGenerator.ReconfigureMaze();
         }
     }
 }

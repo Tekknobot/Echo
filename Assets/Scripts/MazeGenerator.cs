@@ -32,11 +32,16 @@ public class MazeGenerator : MonoBehaviour {
     // Assign a material with your desired floor texture in the Inspector.
     public Material floorMaterial;
 
-    private Cell[,] cells;
+    // Public reference to a MazePathfinder component to reconfigure along with the maze.
+    public MazePathfinder pathFinder;
 
+    private Cell[,] cells;
     public Cell[,] Cells {
         get { return cells; }
     }
+
+    // A maze origin offset; initially zero but updated when reconfiguring.
+    private Vector3 mazeOrigin = Vector3.zero;
 
     void Start() {
         InitializeCells();
@@ -114,10 +119,16 @@ public class MazeGenerator : MonoBehaviour {
         cells[width - 1, height - 1].walls[2] = false;
     }
 
+    // Build the maze using the default origin (Vector3.zero)
     void BuildMaze() {
+        BuildMaze(Vector3.zero);
+    }
+
+    // Overloaded BuildMaze method that accepts an origin offset.
+    void BuildMaze(Vector3 origin) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                Vector3 cellCenter = new Vector3(x * cellSize, 0, y * cellSize);
+                Vector3 cellCenter = origin + new Vector3(x * cellSize, 0, y * cellSize);
                 Cell cell = cells[x, y];
                 Color groupColor = GetGroupColor(cell);
 
@@ -166,24 +177,34 @@ public class MazeGenerator : MonoBehaviour {
             wall.AddComponent<BoxCollider>();
     }
 
+    // Spawn the player at a default position (relative to no offset).
     void SpawnPlayer() {
+        SpawnPlayer(Vector3.zero);
+    }
+
+    // Overloaded SpawnPlayer method that accepts an origin offset.
+    void SpawnPlayer(Vector3 origin) {
         if (playerPrefab != null) {
-            Vector3 spawnPos = new Vector3(0, 2, 0);
-            GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
-            player.transform.rotation = Quaternion.LookRotation(Vector3.left);
+            Vector3 spawnPos = origin + new Vector3(0, 2, 0);
+            Instantiate(playerPrefab, spawnPos, Quaternion.identity);
         } else {
             Debug.LogWarning("Player Prefab not assigned!");
         }
     }
 
-    // Updated CreateFloor: Use a floor material with a texture if assigned.
+    // Create the floor using the default origin.
     void CreateFloor() {
+        CreateFloor(Vector3.zero);
+    }
+
+    // Overloaded CreateFloor method that accepts an origin offset.
+    void CreateFloor(Vector3 origin) {
         GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
         floor.tag = "floor";
         floor.layer = LayerMask.NameToLayer("Floor");
 
-        float centerX = (width * cellSize) / 2 - cellSize / 2;
-        float centerZ = (height * cellSize) / 2 - cellSize / 2;
+        float centerX = origin.x + (width * cellSize) / 2 - cellSize / 2;
+        float centerZ = origin.z + (height * cellSize) / 2 - cellSize / 2;
         floor.transform.position = new Vector3(centerX, 0, centerZ);
 
         float scaleX = (width * cellSize) / 10f;
@@ -193,30 +214,39 @@ public class MazeGenerator : MonoBehaviour {
         Renderer floorRenderer = floor.GetComponent<Renderer>();
         if (floorRenderer != null) {
             Material floorMat;
-            // Use the assigned floor material with texture if available.
             if (floorMaterial != null) {
                 floorMat = Instantiate(floorMaterial);
             } else {
                 floorMat = new Material(Shader.Find("Standard"));
             }
             floorMat.color = floorColor;
-            // Adjust texture tiling so it scales based on maze size (which is affected by cellSize).
             floorMat.mainTextureScale = new Vector2((width * cellSize) / 10f, (height * cellSize) / 10f);
             floorRenderer.material = floorMat;
         }
     }
 
-
+    // Spawn the exit at the default position.
     void SpawnExit() {
+        SpawnExit(Vector3.zero);
+    }
+
+    // Overloaded SpawnExit method that accepts an origin offset.
+    void SpawnExit(Vector3 origin) {
         if (exitPrefab != null) {
-            Vector3 exitPos = new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
+            Vector3 exitPos = origin + new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
             Instantiate(exitPrefab, exitPos, Quaternion.identity);
         } else {
             Debug.LogWarning("Exit prefab not assigned!");
         }
     }
 
+    // Spawn enemies using the default origin.
     void SpawnEnemies() {
+        SpawnEnemies(Vector3.zero);
+    }
+
+    // Overloaded SpawnEnemies method that accepts an origin offset.
+    void SpawnEnemies(Vector3 origin) {
         if (enemyPrefab == null) {
             Debug.LogWarning("Enemy Prefab not assigned!");
             return;
@@ -243,8 +273,43 @@ public class MazeGenerator : MonoBehaviour {
         int spawnCount = Mathf.Min(enemyCount, validCells.Count);
         for (int i = 0; i < spawnCount; i++) {
             Vector2Int cellCoords = validCells[i];
-            Vector3 enemyPos = new Vector3(cellCoords.x * cellSize, 1, cellCoords.y * cellSize);
+            Vector3 enemyPos = origin + new Vector3(cellCoords.x * cellSize, 1, cellCoords.y * cellSize);
             Instantiate(enemyPrefab, enemyPos, Quaternion.identity);
+        }
+    }
+
+    // New method: Reconfigure the maze so that the current exit becomes the new start cell for a reconfigured map.
+    // Also reconfigures the path finder.
+    public void ReconfigureMaze() {
+        // Destroy all generated maze elements (walls) that are children of this object.
+        for (int i = transform.childCount - 1; i >= 0; i--) {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+        // Destroy the floor (assumed to be tagged "floor").
+        GameObject floor = GameObject.FindWithTag("floor");
+        if (floor != null) {
+            Destroy(floor);
+        }
+        // Set the new origin so that the previous exit becomes the new start.
+        mazeOrigin = new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
+        // Reinitialize and regenerate the maze using the new origin.
+        InitializeCells();
+        GenerateMaze();
+        SetMazeEntrances();
+        BuildMaze(mazeOrigin);
+        CreateFloor(mazeOrigin);
+        // Spawn or reposition the player only once.
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player == null) {
+            SpawnPlayer(mazeOrigin);
+        } else {
+            player.transform.position = mazeOrigin + new Vector3(0, 2, 0);
+        }
+        SpawnExit(mazeOrigin);
+        SpawnEnemies(mazeOrigin);
+        // Reconfigure the path finder.
+        if (pathFinder != null) {
+            pathFinder.Reconfigure(mazeOrigin, cells);
         }
     }
 }
