@@ -4,7 +4,8 @@ using TMPro;
 public class ExitTrigger : MonoBehaviour {
     private MazeGenerator mazeGenerator;
     private bool hasTriggered = false;
-    private int level = 1;
+    // Make level static so it persists across different instances of ExitTrigger.
+    private static int level = 1;
     private TMP_Text levelText;
 
     void Start() {
@@ -30,7 +31,6 @@ public class ExitTrigger : MonoBehaviour {
 
     void OnTriggerEnter(Collider other) {
         if (!hasTriggered && other.CompareTag("Player") && mazeGenerator != null) {
-            hasTriggered = true;
             // Increment the level counter.
             level++;
             // Update the LevelText UI.
@@ -39,6 +39,15 @@ public class ExitTrigger : MonoBehaviour {
             }
             // Reconfigure the maze layout in-place.
             mazeGenerator.ReconfigureMaze();
+            hasTriggered = true;
+            Destroy(gameObject);
+        }
+    }
+    
+    // Optional: Reset the trigger when the player exits, making it reusable.
+    void OnTriggerExit(Collider other) {
+        if (other.CompareTag("Player")) {
+            hasTriggered = false;
         }
     }
 }
