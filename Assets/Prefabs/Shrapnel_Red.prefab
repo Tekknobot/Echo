@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 8320002682924395959}
   - component: {fileID: 2509974300546924388}
   - component: {fileID: 7661748012213150536}
-  - component: {fileID: 5709557421261255240}
-  - component: {fileID: 2212002089610872001}
+  - component: {fileID: 4987810361288068097}
+  - component: {fileID: 5522025179479250767}
   m_Layer: 0
-  m_Name: Grenade
+  m_Name: Shrapnel_Red
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.16, z: 0.2}
+  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -43,7 +43,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5740520505562322749}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &2509974300546924388
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 4c169c3eb843f47f6b1f7b8e2d429045, type: 2}
+  - {fileID: 2100000, guid: 89001be64a6904b3784499e2ecd119b0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -116,31 +116,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &5709557421261255240
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5740520505562322749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d51e56689b27480b9071e14828135e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fuseTime: 3
-  shrapnelPrefab: {fileID: 5740520505562322749, guid: 68f790b24006143ef82f899ee30279fa, type: 3}
-  shrapnelCount: 200
-  shrapnelForce: 25
-  blastRadius: 5
-  explosionDamage: 14
-  knockbackForce: 50
-  flashColor: {r: 1, g: 0, b: 0, a: 1}
-  tossSFX: {fileID: 8300000, guid: dd0c1807fb17a4187a08be5f2d4330bc, type: 3}
-  explosionSFX: {fileID: 8300000, guid: bf064943e15774f69961f794db7b7e71, type: 3}
-  blastEffectMaterial: {fileID: 2100000, guid: 3da052c965aff41588bcf42e1fa79d67, type: 2}
---- !u!136 &2212002089610872001
-CapsuleCollider:
+--- !u!65 &4987810361288068097
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -157,8 +134,22 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5522025179479250767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5740520505562322749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f0c201962fd46f6a4a843c2751c458, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 3
+  flashInterval: 0.01
+  fadeOutDuration: 1

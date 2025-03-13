@@ -46,6 +46,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6270945953039248098}
   - component: {fileID: 7402855164685715916}
+  - component: {fileID: 8129704624434541431}
   m_Layer: 0
   m_Name: Healthbar
   m_TagString: Untagged
@@ -125,6 +126,19 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8129704624434541431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2817626519362703981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ee79e917a96f423a95d043b7a518218, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
 --- !u!1 &4477708440066538950
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,6 +443,10 @@ MonoBehaviour:
   healthSlider: {fileID: 7402855164685715916}
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.05
+  shrapnelPrefab: {fileID: 5740520505562322749, guid: a2ca6a8ee03c74447b9399d875fa81d5, type: 3}
+  shrapnelCount: 300
+  shrapnelForce: 10
+  explosionSFX: {fileID: 8300000, guid: bf064943e15774f69961f794db7b7e71, type: 3}
 --- !u!114 &8824479869977548407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,6 +472,7 @@ MonoBehaviour:
   postAttackDuration: 0.2
   preAttackSFX: {fileID: 8300000, guid: fb98596bfbbbd49e39006a8f4d35fec0, type: 3}
   attackSFX: {fileID: 8300000, guid: e21f781cbaf004cecb8c65571f018a4b, type: 3}
+  isHit: 0
 --- !u!1 &6994898345527272724
 GameObject:
   m_ObjectHideFlags: 0

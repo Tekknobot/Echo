@@ -26,6 +26,9 @@ public class EnemyAI : MonoBehaviour
     private Color originalColor;
     private bool isAttacking = false;
 
+    // New flag: when true the enemy will not rotate to face the player.
+    public bool isHit = false;
+
     void Start()
     {
         timer = attackInterval;
@@ -60,13 +63,16 @@ public class EnemyAI : MonoBehaviour
         if (player == null)
             return;
 
-        // Always face the player. Only adjust the Y axis to prevent tilting up/down.
-        Vector3 lookAtPos = new Vector3(player.position.x, transform.position.y, player.position.z);
-        transform.LookAt(lookAtPos);
+        // Only rotate to face the player if the enemy is not hit.
+        if (!isHit)
+        {
+            // Always face the player, only adjusting the Y axis.
+            Vector3 lookAtPos = new Vector3(player.position.x, transform.position.y, player.position.z);
+            transform.LookAt(lookAtPos);
+        }
 
         timer -= Time.deltaTime;
-        // Only begin attack if the timer is up, the enemy isn't already attacking,
-        // and the player is visible.
+        // Only attack if the timer is up, not already attacking, and the player is visible.
         if (timer <= 0f && !isAttacking && IsPlayerVisible())
         {
             StartCoroutine(AttackPlayerWithColor());

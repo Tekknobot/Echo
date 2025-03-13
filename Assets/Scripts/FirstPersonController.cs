@@ -21,6 +21,8 @@ public class FirstPersonController : MonoBehaviour
         public int pelletCount = 6;
         // NEW: Field-of-view for zoom when using this gun (e.g., 30° for a scoped weapon)
         public float zoomFOV = 30f;
+
+        public int damage = 1;
     }    
     
     // Movement Settings
@@ -301,7 +303,7 @@ public class FirstPersonController : MonoBehaviour
         EnemyHitFlash enemyFlash = hit.transform.GetComponent<EnemyHitFlash>();
         if (enemyFlash != null)
         {
-            enemyFlash.FlashAndTakeDamage();
+            enemyFlash.TakeDamage(gun.damage);
         }
     }
 

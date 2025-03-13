@@ -5,9 +5,9 @@ public class Grenade : MonoBehaviour
 {
     [Header("Grenade Settings")]
     public float fuseTime = 3f;             // Delay before the grenade explodes.
-    public GameObject shrapnelPrefab;       // Prefab for the shrapnel piece.
-    public int shrapnelCount = 20;          // How many shrapnel pieces to spawn.
-    public float shrapnelForce = 10f;       // Force applied to each shrapnel piece.
+    public GameObject shrapnelPrefab;       // Prefab for each fragment piece.
+    public int shrapnelCount = 20;          // Number of fragments to spawn on explosion.
+    public float shrapnelForce = 10f;       // Force applied to each fragment.
 
     [Header("Explosion Settings")]
     public float blastRadius = 5f;          // Radius of the explosion effect.
@@ -16,7 +16,7 @@ public class Grenade : MonoBehaviour
 
     [Header("Flash Settings")]
     public Color flashColor = Color.red;    // Color to flash.
-    
+
     [Header("Audio Settings")]
     public AudioClip tossSFX;               // Sound effect played when the grenade is tossed.
     public AudioClip explosionSFX;          // Sound effect played when the grenade explodes.
@@ -53,7 +53,6 @@ public class Grenade : MonoBehaviour
         // Loop until the grenade explodes.
         while (Time.time - startTime < fuseTime)
         {
-            // Calculate time left and map it to a flash interval.
             float timeLeft = fuseTime - (Time.time - startTime);
             float flashInterval = Mathf.Lerp(0.05f, 0.5f, timeLeft / fuseTime);
 
@@ -71,7 +70,6 @@ public class Grenade : MonoBehaviour
 
     IEnumerator ExplosionCountdown()
     {
-        // Wait for the fuse time.
         yield return new WaitForSeconds(fuseTime);
         Explode();
     }
@@ -86,7 +84,7 @@ public class Grenade : MonoBehaviour
             AudioSource.PlayClipAtPoint(explosionSFX, transform.position);
         }
 
-        // Instantiate the blast effect as a separate GameObject.
+        // Instantiate the blast effect (if desired).
         GameObject blastEffectGO = new GameObject("BlastEffect");
         blastEffectGO.transform.position = transform.position;
         BlastEffect blastEffect = blastEffectGO.AddComponent<BlastEffect>();
@@ -94,7 +92,7 @@ public class Grenade : MonoBehaviour
         blastEffect.blastColor = flashColor;
         blastEffect.blastMaterial = blastEffectMaterial != null ? blastEffectMaterial : new Material(Shader.Find("Legacy Shaders/Transparent/Diffuse"));
 
-        // Process explosion effects (damage, knockback, etc.)
+        // Process explosion effects: apply damage and knockback.
         Collider[] colliders = Physics.OverlapSphere(transform.position, blastRadius);
         foreach (Collider col in colliders)
         {
@@ -137,19 +135,41 @@ public class Grenade : MonoBehaviour
             }
         }
 
-        // Spawn shrapnel pieces.
-        for (int i = 0; i < shrapnelCount; i++)
+        // Fragment the grenade into pieces.
+        // Adjust fragmentRadius as needed to control spawn area.
+        float fragmentRadius = 0.5f;
+        if (shrapnelPrefab != null)
         {
-            GameObject shrapnel = Instantiate(shrapnelPrefab, transform.position, Quaternion.identity);
-            Vector3 randomDir = Random.onUnitSphere;
-            Rigidbody rb = shrapnel.GetComponent<Rigidbody>();
-            if (rb != null)
+            for (int i = 0; i < shrapnelCount; i++)
             {
-                rb.AddForce(Vector3.up * shrapnelForce, ForceMode.Impulse);
+                // Randomly offset each fragment from the grenade's center.
+                Vector3 offset = Random.insideUnitSphere * fragmentRadius;
+                Vector3 spawnPos = transform.position + offset;
+                GameObject fragment = Instantiate(shrapnelPrefab, spawnPos, Random.rotation);
+
+                // Ensure the fragment has a Rigidbody.
+                Rigidbody rb = fragment.GetComponent<Rigidbody>();
+                if (rb == null)
+                {
+                    rb = fragment.AddComponent<Rigidbody>();
+                }
+                // Ensure the fragment has a Collider.
+                Collider col = fragment.GetComponent<Collider>();
+                if (col == null)
+                {
+                    fragment.AddComponent<BoxCollider>();
+                }
+                // Apply force away from the grenade's center.
+                Vector3 forceDir = offset.normalized;
+                if (forceDir == Vector3.zero)
+                {
+                    forceDir = Random.onUnitSphere;
+                }
+                rb.AddForce(forceDir * shrapnelForce, ForceMode.Impulse);
             }
         }
         
-        // Destroy the grenade immediately after explosion.
+        // Destroy the grenade after explosion.
         Destroy(gameObject);
     }
 }
