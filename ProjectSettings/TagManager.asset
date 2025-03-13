@@ -10,6 +10,9 @@ TagManager:
   - Enemy
   - Exit
   - HealthBar
+  - Maze
+  - GunName
+  - LevelText
   layers:
   - Default
   - TransparentFX

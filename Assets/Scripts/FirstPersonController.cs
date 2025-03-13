@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using TMPro; // Import TextMeshPro namespace
 
 public class FirstPersonController : MonoBehaviour
 {
@@ -13,15 +14,10 @@ public class FirstPersonController : MonoBehaviour
         public GameObject bulletRicochetPrefab;  // Prefab used for the bullet ricochet effect
         public float impactForce = 10f;  // Impact force to apply to the prefab after instantiation
         public AudioClip shootSFX;       // Audio clip to play on each shot
-        // Decal prefab that will be placed at the hit point
-        public GameObject bulletImpactDecalPrefab;
-        // Bullet spread angle (in degrees) to randomize the shot direction
-        public float bulletSpread = 0f;
-        // NEW: Number of pellets fired (shotgun)
-        public int pelletCount = 6;
-        // NEW: Field-of-view for zoom when using this gun (e.g., 30° for a scoped weapon)
-        public float zoomFOV = 30f;
-
+        public GameObject bulletImpactDecalPrefab; // Decal prefab for bullet impact
+        public float bulletSpread = 0f;  // Bullet spread angle (in degrees) for randomized shot direction
+        public int pelletCount = 6;      // Number of pellets fired (shotgun)
+        public float zoomFOV = 30f;      // Field-of-view for zoom when using this gun
         public int damage = 1;
     }    
     
@@ -91,6 +87,9 @@ public class FirstPersonController : MonoBehaviour
         }
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Optionally update the initial gun name on the UI.
+        UpdateGunNameText();
     }
 
     void Update()
@@ -325,7 +324,7 @@ public class FirstPersonController : MonoBehaviour
         rend.material.SetColor("_EmissionColor", originalEmission);
     }
 
-    // Switch guns using the mouse scroll wheel.
+    // Switch guns using the mouse scroll wheel and update the UI.
     void HandleGunSwitching()
     {
         if (guns == null || guns.Length == 0)
@@ -341,10 +340,29 @@ public class FirstPersonController : MonoBehaviour
         {
             currentGunIndex = (currentGunIndex - 1 + guns.Length) % guns.Length;
         }
-        if (currentGunIndex != previousGunIndex && gunSwitchSFX != null)
+        if (currentGunIndex != previousGunIndex)
         {
-            AudioSource.PlayClipAtPoint(gunSwitchSFX, cameraTransform.position);
+            if (gunSwitchSFX != null)
+            {
+                AudioSource.PlayClipAtPoint(gunSwitchSFX, cameraTransform.position);
+            }
             Debug.Log("Switched to gun: " + guns[currentGunIndex].gunName);
+            // Update the gun name UI text via TextMeshPro using the tag "GunName"
+            UpdateGunNameText();
+        }
+    }
+
+    // Helper method to update the gun name TextMeshPro text.
+    void UpdateGunNameText()
+    {
+        GameObject gunNameObj = GameObject.FindGameObjectWithTag("GunName");
+        if (gunNameObj != null)
+        {
+            TMP_Text gunNameTMP = gunNameObj.GetComponent<TMP_Text>();
+            if (gunNameTMP != null)
+            {
+                gunNameTMP.text = guns[currentGunIndex].gunName;
+            }
         }
     }
 

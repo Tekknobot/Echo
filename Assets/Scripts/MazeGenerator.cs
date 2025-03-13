@@ -279,7 +279,7 @@ public class MazeGenerator : MonoBehaviour {
     }
 
     // New method: Reconfigure the maze so that the current exit becomes the new start cell for a reconfigured map.
-    // Also reconfigures the path finder.
+    // Also reconfigures the path finder and destroys previous enemies.
     public void ReconfigureMaze() {
         // Destroy all generated maze elements (walls) that are children of this object.
         for (int i = transform.childCount - 1; i >= 0; i--) {
@@ -289,6 +289,11 @@ public class MazeGenerator : MonoBehaviour {
         GameObject floor = GameObject.FindWithTag("floor");
         if (floor != null) {
             Destroy(floor);
+        }
+        // Destroy all existing enemies (assumed to have the tag "Enemy").
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemy in enemies) {
+            Destroy(enemy);
         }
         // Set the new origin so that the previous exit becomes the new start.
         mazeOrigin = new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
@@ -312,6 +317,7 @@ public class MazeGenerator : MonoBehaviour {
             pathFinder.Reconfigure(mazeOrigin, cells);
         }
     }
+
 }
 
 public class Cell {
