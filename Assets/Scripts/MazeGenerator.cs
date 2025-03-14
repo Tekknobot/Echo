@@ -183,6 +183,7 @@ public class MazeGenerator : MonoBehaviour {
         wall.transform.parent = transform;
         wall.tag = "wall";
 
+
         Renderer wallRenderer = wall.GetComponent<Renderer>();
         if (wallRenderer != null && mazeElementMaterial != null) {
             // Create an instance of the predefined material.
