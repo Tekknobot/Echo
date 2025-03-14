@@ -24,6 +24,10 @@ public class FallRestart : MonoBehaviour
     {
         isRestarting = true;
         yield return new WaitForSeconds(delayBeforeRestart);
+        
+        // Reset the level in the exit trigger.
+        ExitTrigger.ResetLevel();
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

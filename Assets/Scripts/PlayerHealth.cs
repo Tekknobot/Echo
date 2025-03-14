@@ -145,6 +145,11 @@ public class PlayerHealth : MonoBehaviour
         
         yield return new WaitForSeconds(restartDelay);
         
+        // Reset the level in the exit trigger.
+        ExitTrigger.ResetLevel();
+        
+        // Reload the current scene.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 }

@@ -50,4 +50,16 @@ public class ExitTrigger : MonoBehaviour {
             hasTriggered = false;
         }
     }
+
+    public static void ResetLevel() {
+        level = 1;
+        GameObject levelTextObj = GameObject.FindGameObjectWithTag("LevelText");
+        if (levelTextObj != null) {
+            TMP_Text tmp = levelTextObj.GetComponent<TMP_Text>();
+            if (tmp != null) {
+                tmp.text = "Level " + level;
+            }
+        }
+    }
+
 }
