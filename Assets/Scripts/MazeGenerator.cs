@@ -19,6 +19,8 @@ public class MazeGenerator : MonoBehaviour {
     [Header("Prefabs")]
     public GameObject playerPrefab;
     public GameObject exitPrefab;
+    // Reference to the single ExitTrigger instance.
+    private ExitTrigger exitTriggerInstance;    
 
     [Header("Enemy Settings")]
     public GameObject enemyPrefab;
@@ -43,6 +45,9 @@ public class MazeGenerator : MonoBehaviour {
     // A maze origin offset; initially zero but updated when reconfiguring.
     private Vector3 mazeOrigin = Vector3.zero;
 
+    public Vector3 MazeOrigin { get { return mazeOrigin; } }
+
+
     void Start() {
         InitializeCells();
         GenerateMaze();
@@ -50,8 +55,21 @@ public class MazeGenerator : MonoBehaviour {
         BuildMaze();
         CreateFloor();
         SpawnPlayer();
-        SpawnExit();
+        // Instead of spawning a new exit every time, spawn it only once.
+        SpawnExitOnce(Vector3.zero);
         SpawnEnemies();
+    }
+
+    // New method: spawn the exit trigger only if it hasn’t been spawned already.
+    void SpawnExitOnce(Vector3 origin) {
+        if (exitPrefab != null && exitTriggerInstance == null) {
+            Vector3 exitPos = origin + new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
+            GameObject exitObj = Instantiate(exitPrefab, exitPos, Quaternion.identity);
+            exitTriggerInstance = exitObj.GetComponent<ExitTrigger>();
+            if (exitTriggerInstance == null) {
+                Debug.LogError("Exit prefab must have an ExitTrigger component attached!");
+            }
+        }
     }
 
     void InitializeCells() {
@@ -278,45 +296,50 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
-    // New method: Reconfigure the maze so that the current exit becomes the new start cell for a reconfigured map.
-    // Also reconfigures the path finder and destroys previous enemies.
+    // Modified reconfiguration: do not spawn a new exit trigger but reposition the existing one.
     public void ReconfigureMaze() {
-        // Destroy all generated maze elements (walls) that are children of this object.
+        // Destroy generated maze elements, floor, enemies, etc.
         for (int i = transform.childCount - 1; i >= 0; i--) {
             Destroy(transform.GetChild(i).gameObject);
         }
-        // Destroy the floor (assumed to be tagged "floor").
-        GameObject floor = GameObject.FindWithTag("floor");
+        GameObject floor = GameObject.FindGameObjectWithTag("floor");
         if (floor != null) {
             Destroy(floor);
         }
-        // Destroy all existing enemies (assumed to have the tag "Enemy").
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in enemies) {
+        foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy")) {
             Destroy(enemy);
         }
-        // Set the new origin so that the previous exit becomes the new start.
-        mazeOrigin = new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
-        // Reinitialize and regenerate the maze using the new origin.
+        foreach (GameObject shrapnel in GameObject.FindGameObjectsWithTag("Shrapnel")) {
+            Destroy(shrapnel);
+        }
+        foreach (GameObject fragment in GameObject.FindGameObjectsWithTag("Fragment")) {
+            Destroy(fragment);
+        }
+
+        // Update the mazeOrigin so that the previous exit becomes the new start.
+        // Instead of resetting from zero, add the offset to the current mazeOrigin.
+        mazeOrigin += new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
+
         InitializeCells();
         GenerateMaze();
         SetMazeEntrances();
         BuildMaze(mazeOrigin);
         CreateFloor(mazeOrigin);
-        // Spawn or reposition the player only once.
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) {
-            SpawnPlayer(mazeOrigin);
-        } else {
-            player.transform.position = mazeOrigin + new Vector3(0, 2, 0);
+        
+        if (exitTriggerInstance != null) {
+            // Calculate the new exit position: the exit cell is at (width - 1, height - 1) relative to the new mazeOrigin.
+            Vector3 newExitPos = mazeOrigin + new Vector3((width - 1) * cellSize, 0, (height - 1) * cellSize);
+            exitTriggerInstance.transform.position = newExitPos;
         }
-        SpawnExit(mazeOrigin);
+        
         SpawnEnemies(mazeOrigin);
-        // Reconfigure the path finder.
+
+        // Reconfigure the path finder if needed.
         if (pathFinder != null) {
             pathFinder.Reconfigure(mazeOrigin, cells);
         }
     }
+
 
 }
 
