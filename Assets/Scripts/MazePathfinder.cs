@@ -143,4 +143,9 @@ public class MazePathfinder : MonoBehaviour {
             Debug.LogWarning("Path not found after reconfiguration!");
         }
     }
+
+    public List<Cell> GetPath() {
+        return FindPath();
+    }
+
 }

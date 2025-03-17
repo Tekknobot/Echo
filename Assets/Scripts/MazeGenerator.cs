@@ -26,6 +26,12 @@ public class MazeGenerator : MonoBehaviour {
     public GameObject enemyPrefab;
     public int enemyCount = 5;
     
+    [Header("Star Settings")]
+    // Assign your star prefab in the Inspector.
+    public GameObject starPrefab;
+    // Number of star prefabs to spawn.
+    public int starCount = 3;
+    
     [Header("Materials")]
     // Predefined material for maze walls and other elements.
     public Material mazeElementMaterial;
@@ -44,9 +50,7 @@ public class MazeGenerator : MonoBehaviour {
 
     // A maze origin offset; initially zero but updated when reconfiguring.
     private Vector3 mazeOrigin = Vector3.zero;
-
     public Vector3 MazeOrigin { get { return mazeOrigin; } }
-
 
     void Start() {
         InitializeCells();
@@ -58,6 +62,8 @@ public class MazeGenerator : MonoBehaviour {
         // Instead of spawning a new exit every time, spawn it only once.
         SpawnExitOnce(Vector3.zero);
         SpawnEnemies();
+        // Spawn stars on cells NOT along the solution path.
+        SpawnStars(Vector3.zero);
     }
 
     // New method: spawn the exit trigger only if it hasn’t been spawned already.
@@ -183,7 +189,6 @@ public class MazeGenerator : MonoBehaviour {
         wall.transform.parent = transform;
         wall.tag = "wall";
 
-
         Renderer wallRenderer = wall.GetComponent<Renderer>();
         if (wallRenderer != null && mazeElementMaterial != null) {
             // Create an instance of the predefined material.
@@ -297,9 +302,60 @@ public class MazeGenerator : MonoBehaviour {
         }
     }
 
+    // New method: spawn star prefabs on cells that are NOT along the solution path.
+    // It assumes that your MazePathfinder component has a method GetPath() that returns a List<Cell>.
+    void SpawnStars(Vector3 origin) {
+        if (starPrefab == null) {
+            Debug.LogWarning("Star prefab not assigned!");
+            return;
+        }
+
+        List<Cell> solutionPath = new List<Cell>();
+        if (pathFinder != null) {
+            solutionPath = pathFinder.GetPath();
+        } else {
+            Debug.LogWarning("MazePathfinder not assigned. Cannot determine solution path for star spawning.");
+            return;
+        }
+
+        // Create a set for quick lookup of cells along the solution path.
+        HashSet<Vector2Int> pathCells = new HashSet<Vector2Int>();
+        foreach (Cell c in solutionPath) {
+            pathCells.Add(new Vector2Int(c.x, c.y));
+        }
+
+        List<Vector2Int> validCells = new List<Vector2Int>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Vector2Int cellCoords = new Vector2Int(x, y);
+                if (!pathCells.Contains(cellCoords)) {
+                    validCells.Add(cellCoords);
+                }
+            }
+        }
+
+        // Shuffle the validCells list.
+        for (int i = 0; i < validCells.Count; i++) {
+            Vector2Int temp = validCells[i];
+            int randomIndex = Random.Range(i, validCells.Count);
+            validCells[i] = validCells[randomIndex];
+            validCells[randomIndex] = temp;
+        }
+
+        int spawnCount = Mathf.Min(starCount, validCells.Count);
+        for (int i = 0; i < spawnCount; i++) {
+            Vector2Int cellCoords = validCells[i];
+            // Adjust the y value as needed for proper star placement.
+            Vector3 starPos = origin + new Vector3(cellCoords.x * cellSize, 1, cellCoords.y * cellSize);
+            GameObject star = Instantiate(starPrefab, starPos, Quaternion.identity);
+            // Optionally assign a tag so you can remove or manage these later.
+            star.tag = "Star";
+        }
+    }
+
     // Modified reconfiguration: do not spawn a new exit trigger but reposition the existing one.
     public void ReconfigureMaze() {
-        // Destroy generated maze elements, floor, enemies, etc.
+        // Destroy generated maze elements, floor, enemies, stars, etc.
         for (int i = transform.childCount - 1; i >= 0; i--) {
             Destroy(transform.GetChild(i).gameObject);
         }
@@ -309,6 +365,9 @@ public class MazeGenerator : MonoBehaviour {
         }
         foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy")) {
             Destroy(enemy);
+        }
+        foreach (GameObject star in GameObject.FindGameObjectsWithTag("Star")) {
+            Destroy(star);
         }
         foreach (GameObject shrapnel in GameObject.FindGameObjectsWithTag("Shrapnel")) {
             Destroy(shrapnel);
@@ -334,19 +393,19 @@ public class MazeGenerator : MonoBehaviour {
         }
         
         SpawnEnemies(mazeOrigin);
+        SpawnStars(mazeOrigin);
 
         // Reconfigure the path finder if needed.
         if (pathFinder != null) {
             pathFinder.Reconfigure(mazeOrigin, cells);
         }
     }
-
-
 }
 
 public class Cell {
     public int x, y;
     public bool visited = false;
+    // Walls: 0 = bottom, 1 = right, 2 = top, 3 = left.
     public bool[] walls = new bool[] { true, true, true, true };
 
     public Cell(int _x, int _y) {
