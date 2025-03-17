@@ -15,6 +15,7 @@ TagManager:
   - LevelText
   - Shrapnel
   - Fragment
+  - StarCount
   layers:
   - Default
   - TransparentFX

@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class StarTriggerBehavior : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class StarTriggerBehavior : MonoBehaviour
     public float destroyDelay = 5f;
     [Tooltip("Sound effect to play when triggered.")]
     public AudioClip triggerSFX;
+
+    // Static counter shared across all stars.
+    private static int capturedStarsCount = 0;
 
     private bool triggered = false;
     private RotateYaxis rotateYaxis;
@@ -43,6 +47,28 @@ public class StarTriggerBehavior : MonoBehaviour
                 }
                 audioSource.PlayOneShot(triggerSFX);
             }
+
+            // Increment the captured stars counter.
+            capturedStarsCount++;
+            // Find the GameObject with tag "StarCount" and update its TextMeshPro text.
+            GameObject starCountObj = GameObject.FindGameObjectWithTag("StarCount");
+            if (starCountObj != null)
+            {
+                TMP_Text starText = starCountObj.GetComponent<TMP_Text>();
+                if (starText != null)
+                {
+                    starText.text = "Stars: " + capturedStarsCount;
+                }
+                else
+                {
+                    Debug.LogWarning("No TMP_Text component found on object with tag 'StarCount'.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("No GameObject found with tag 'StarCount'.");
+            }
+
             // Schedule destruction of the star after the specified delay.
             Destroy(gameObject, destroyDelay);
         }
