@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 3517033935407064320}
   - component: {fileID: 2239418130082155137}
   - component: {fileID: 7712378679021187406}
+  - component: {fileID: 3130657866979110617}
+  - component: {fileID: -979544953100205727}
   m_Layer: 0
   m_Name: StarMeshGenerator
   m_TagString: Untagged
@@ -103,3 +105,40 @@ MonoBehaviour:
   outerRadius: 1
   innerRadius: 0.382
   depth: 0.2
+  rotationSpeed: 90
+--- !u!65 &3130657866979110617
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2631226078605389676}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-979544953100205727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2631226078605389676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06e70b8eebf64b978352b5639dd8216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  upwardSpeed: 5
+  destroyDelay: 5
+  triggerSFX: {fileID: 8300000, guid: ccbca0f7fffbc47aa90e0e8698235388, type: 3}
