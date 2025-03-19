@@ -16,6 +16,7 @@ TagManager:
   - Shrapnel
   - Fragment
   - StarCount
+  - Star
   layers:
   - Default
   - TransparentFX
